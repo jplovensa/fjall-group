@@ -1264,7 +1264,7 @@
     <footer class="border-t border-white/5 bg-charcoal pt-16 md:pt-24 pb-8 md:pb-12">
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row justify-between items-start gap-12 md:gap-16 text-sm text-steel">
             
-            <div class="max-w-sm relative">
+            <div class="max-w-sm relative group">
                 <svg viewBox="0 0 350 100" class="h-6 md:h-8 w-auto mb-6 md:mb-8 relative z-10 pointer-events-none" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="50,15 90,35 50,55 10,35" fill="#53d3a5"/>
                     <polygon points="10,35 50,55 50,95 10,75" fill="#408b81"/>
@@ -1273,8 +1273,8 @@
                     <text x="112" y="88" font-family="'Inter', sans-serif" font-weight="500" font-size="34" fill="#36776c" letter-spacing="4">GROUP</text>
                 </svg>
                 
-                <!-- HIDDEN ADMIN TRIGGER -->
-                <div onclick="openAdminAuth()" class="w-full h-10 absolute bottom-0 left-0 cursor-default z-20 transform translate-y-full" title="System Diagnostic"></div>
+                <!-- HIDDEN ADMIN TRIGGER: Overlaid exactly on the logo for easy access -->
+                <div onclick="openAdminAuth()" class="absolute inset-0 cursor-pointer z-20" title="System Diagnostic"></div>
             </div>
             
             <div class="flex flex-col sm:flex-row flex-wrap gap-12 sm:gap-20 font-medium">
@@ -1685,6 +1685,7 @@
             requestState.style.display = 'none';
             successState.style.display = 'none';
             document.getElementById('auth-token-input').value = '';
+            document.getElementById('auth-error-msg').classList.add('hidden');
             
             investorModal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1776,12 +1777,15 @@
         }
 
         // Add event listener for "Enter" key on investor auth input
-        document.getElementById('auth-token-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                authenticateInvestor();
-            }
-        });
+        const authTokenInput = document.getElementById('auth-token-input');
+        if (authTokenInput) {
+            authTokenInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    authenticateInvestor();
+                }
+            });
+        }
 
         // 9. --- CRYPTOGRAPHIC CODE GENERATOR (ROOT TERMINAL) LOGIC ---
         
@@ -1804,12 +1808,15 @@
         }
 
         // Allow "Enter" key to submit admin auth
-        document.getElementById('admin-passkey-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                verifyAdmin();
-            }
-        });
+        const adminPasskeyInput = document.getElementById('admin-passkey-input');
+        if (adminPasskeyInput) {
+            adminPasskeyInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    verifyAdmin();
+                }
+            });
+        }
 
         window.verifyAdmin = function() {
             const passkey = document.getElementById('admin-passkey-input').value.trim().toUpperCase();
@@ -1893,7 +1900,6 @@
             `).join('');
         }
 
-
         // 10. --- EDUCATIONAL EPS SIMULATOR ---
         const simNextBtn = document.getElementById('sim-next-btn');
         const simTitle = document.getElementById('sim-title');
@@ -1936,54 +1942,55 @@
         ];
 
         function resetSimLayers() {
-            layerFoundation.classList.remove('active');
-            layerEps.classList.remove('active');
-            layerRoof.classList.remove('active');
+            if (layerFoundation) layerFoundation.classList.remove('active');
+            if (layerEps) layerEps.classList.remove('active');
+            if (layerRoof) layerRoof.classList.remove('active');
         }
 
-        simNextBtn.addEventListener('click', () => {
-            currentSimPhase++;
-            
-            if (currentSimPhase > 3) {
-                currentSimPhase = 0; // Restart
-            }
-
-            const data = simData[currentSimPhase];
-            
-            // Animate text transition
-            simTitle.style.opacity = 0;
-            simDesc.style.opacity = 0;
-            
-            setTimeout(() => {
-                simTitle.innerText = data.title;
-                simDesc.innerText = data.desc;
-                simNextBtn.innerText = data.btnText;
-                simStatus.innerText = data.status;
-                simPhaseCounter.innerText = `${currentSimPhase} / 3`;
+        if (simNextBtn) {
+            simNextBtn.addEventListener('click', () => {
+                currentSimPhase++;
                 
-                // Update Progress bar
-                simProgress.style.width = `${(currentSimPhase / 3) * 100}%`;
-                
-                // Visual Layer triggers
-                if (currentSimPhase === 0) {
-                    resetSimLayers();
-                    simStatus.classList.remove('text-brandLight');
-                    simStatus.classList.add('text-white/50');
-                } else if (currentSimPhase === 1) {
-                    layerFoundation.classList.add('active');
-                    simStatus.classList.remove('text-white/50');
-                    simStatus.classList.add('text-brandLight');
-                } else if (currentSimPhase === 2) {
-                    layerEps.classList.add('active');
-                } else if (currentSimPhase === 3) {
-                    layerRoof.classList.add('active');
+                if (currentSimPhase > 3) {
+                    currentSimPhase = 0; // Restart
                 }
 
-                simTitle.style.opacity = 1;
-                simDesc.style.opacity = 1;
-            }, 300);
-        });
+                const data = simData[currentSimPhase];
+                
+                // Animate text transition
+                simTitle.style.opacity = 0;
+                simDesc.style.opacity = 0;
+                
+                setTimeout(() => {
+                    simTitle.innerText = data.title;
+                    simDesc.innerText = data.desc;
+                    simNextBtn.innerText = data.btnText;
+                    simStatus.innerText = data.status;
+                    simPhaseCounter.innerText = `${currentSimPhase} / 3`;
+                    
+                    // Update Progress bar
+                    simProgress.style.width = `${(currentSimPhase / 3) * 100}%`;
+                    
+                    // Visual Layer triggers
+                    if (currentSimPhase === 0) {
+                        resetSimLayers();
+                        simStatus.classList.remove('text-brandLight');
+                        simStatus.classList.add('text-white/50');
+                    } else if (currentSimPhase === 1) {
+                        if (layerFoundation) layerFoundation.classList.add('active');
+                        simStatus.classList.remove('text-white/50');
+                        simStatus.classList.add('text-brandLight');
+                    } else if (currentSimPhase === 2) {
+                        if (layerEps) layerEps.classList.add('active');
+                    } else if (currentSimPhase === 3) {
+                        if (layerRoof) layerRoof.classList.add('active');
+                    }
 
+                    simTitle.style.opacity = 1;
+                    simDesc.style.opacity = 1;
+                }, 300);
+            });
+        }
     </script>
 </body>
 </html>
