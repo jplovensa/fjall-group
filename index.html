@@ -80,32 +80,35 @@
 
         .loader-sequence { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* Sequence 1: Traditional (Slow, Grey) */
-        #seq-trad { animation: seqFadeInOut 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
-        .trad-draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: slowDraw 3s ease-in-out forwards 0.5s; }
-        .trad-text { opacity: 0; transform: translateY(10px); animation: textUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s; }
+        /* Sequence 1: Traditional (Slow, Grey) - Accelerated Timings */
+        #seq-trad { animation: seqFadeInOut 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
+        .trad-draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: slowDraw 1.8s ease-in-out forwards 0.2s; }
+        .trad-text { opacity: 0; transform: translateY(10px); animation: textUp 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
         
-        /* Sequence 2: Fjäll EPS (Fast, Teal) */
-        #seq-fjall { animation: seqFadeInOut 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 3.8s; }
-        .fjall-snap-1 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.2s; }
-        .fjall-snap-2 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.4s; }
-        .fjall-snap-3 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.6s; }
-        .fjall-text { opacity: 0; transform: translateY(10px); animation: textUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 4.0s; }
+        /* Sequence 2: Fjäll EPS (Fast, Teal) - Accelerated Timings */
+        #seq-fjall { animation: seqFadeInOut 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 2.0s; }
+        .fjall-snap-1 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.3s; }
+        .fjall-snap-2 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.5s; }
+        .fjall-snap-3 { transform: translateY(-100px); opacity: 0; animation: rapidSnap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.7s; }
+        .fjall-text { opacity: 0; transform: translateY(10px); animation: textUp 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards 2.2s; }
 
         @keyframes seqFadeInOut { 0% { opacity: 0; filter: blur(5px); } 15% { opacity: 1; filter: blur(0); } 85% { opacity: 1; filter: blur(0); } 100% { opacity: 0; filter: blur(5px); } }
         @keyframes slowDraw { to { stroke-dashoffset: 0; } }
         @keyframes rapidSnap { to { transform: translateY(0); opacity: 1; } }
         @keyframes textUp { 0% { opacity: 0; transform: translateY(10px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
 
-        /* Sequence 3: Logo Slam */
-        #seq-logo { opacity: 0; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* Sequence 3: Logo Slam - Perfectly Centred */
+        #seq-logo { opacity: 0; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; }
         #seq-logo.active { opacity: 1; }
 
-        .loader-svg-container { width: 100%; max-width: 380px; padding: 0 2rem; height: 140px; position: relative; opacity: 1; z-index: 20; transform: translateZ(0); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .loader-svg-container { width: 100%; max-width: 280px; position: relative; opacity: 1; z-index: 20; transform: translateZ(0); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; justify-content: center; align-items: center; margin: 0 auto; }
+        @media (min-width: 768px) { .loader-svg-container { max-width: 380px; } }
+        
         .flatpack-piece { opacity: 0; }
-        .pack-1.slam { transform: translate(-140px, -110px) scale(1.3) rotate(-25deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0s; }
-        .pack-2.slam { transform: translate(-100px, 140px) scale(1.3) rotate(25deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
-        .pack-3.slam { transform: translate(140px, -60px) scale(1.3) rotate(30deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
+        /* Tighter scatter radius for mobile stability */
+        .pack-1.slam { transform: translate(-80px, -60px) scale(1.1) rotate(-15deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0s; }
+        .pack-2.slam { transform: translate(-60px, 80px) scale(1.1) rotate(15deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
+        .pack-3.slam { transform: translate(80px, -40px) scale(1.1) rotate(20deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
         
         @keyframes slamIn { 0% { opacity: 0; filter: blur(8px); } 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; filter: blur(0px); } }
         
@@ -245,14 +248,14 @@
         
         <!-- Seq 1: Traditional Construction -->
         <div id="seq-trad" class="loader-sequence">
-            <div class="relative w-64 h-64 mb-10 flex justify-center items-center">
+            <div class="relative w-48 h-48 md:w-64 md:h-64 mb-8 md:mb-10 flex justify-center items-center">
                 <svg viewBox="0 0 200 200" class="w-full h-full overflow-visible">
                     <!-- Messy, slow wireframe drawing -->
                     <g fill="none" stroke="#666" stroke-width="2">
                         <path d="M40,160 L160,160 M60,160 L60,80 M140,160 L140,80 M60,120 L140,120 M60,80 L140,80" class="trad-draw"/>
-                        <path d="M40,160 L20,60 L60,80 M160,160 L180,60 L140,80" class="trad-draw" style="animation-delay: 1s;"/>
+                        <path d="M40,160 L20,60 L60,80 M160,160 L180,60 L140,80" class="trad-draw" style="animation-delay: 0.5s;"/>
                         <!-- Slow crane hook -->
-                        <path d="M100,20 L100,80 M90,80 L110,80 L100,90 Z" class="trad-draw" style="animation-delay: 1.5s;"/>
+                        <path d="M100,20 L100,80 M90,80 L110,80 L100,90 Z" class="trad-draw" style="animation-delay: 0.8s;"/>
                     </g>
                 </svg>
             </div>
@@ -264,7 +267,7 @@
 
         <!-- Seq 2: Fjäll EPS Deployment -->
         <div id="seq-fjall" class="loader-sequence">
-            <div class="relative w-64 h-64 mb-10 flex justify-center items-center">
+            <div class="relative w-48 h-48 md:w-64 md:h-64 mb-8 md:mb-10 flex justify-center items-center">
                 <svg viewBox="0 0 200 200" class="w-full h-full overflow-visible drop-shadow-[0_0_30px_rgba(83,211,165,0.3)]">
                     <!-- Crisp Base -->
                     <polygon points="100,160 40,130 100,100 160,130" fill="none" stroke="#53d3a5" stroke-width="2" class="fjall-snap-1"/>
@@ -286,7 +289,7 @@
         <!-- Seq 3: Logo Slam -->
         <div id="seq-logo" class="loader-sequence">
             <div class="loader-svg-container" id="logo-container">
-                <svg viewBox="0 0 350 100" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 350 100" class="w-full h-auto mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="mark">
                         <polygon class="flatpack-piece pack-1" points="50,15 90,35 50,55 10,35" fill="#53d3a5"/>
                         <polygon class="flatpack-piece pack-2" points="10,35 50,55 50,95 10,75" fill="#408b81"/>
@@ -1271,7 +1274,7 @@
                 </svg>
                 
                 <!-- HIDDEN ADMIN TRIGGER -->
-                <div onclick="openAdminAuth()" class="w-full h-16 absolute bottom-[-20px] left-0 cursor-default z-20" title="System Diagnostic"></div>
+                <div onclick="openAdminAuth()" class="w-full h-10 absolute bottom-0 left-0 cursor-default z-20 transform translate-y-full" title="System Diagnostic"></div>
             </div>
             
             <div class="flex flex-col sm:flex-row flex-wrap gap-12 sm:gap-20 font-medium">
@@ -1333,7 +1336,7 @@
             }
         };
 
-        // 3. Cinematic Build Story Loader Logic
+        // 3. Cinematic Build Story Loader Logic (Accelerated)
         window.addEventListener('load', () => {
             const seqTrad = document.getElementById('seq-trad');
             const seqFjall = document.getElementById('seq-fjall');
@@ -1344,13 +1347,13 @@
             // Timeline aligns with CSS animation delays
             setTimeout(() => {
                 seqTrad.style.opacity = '0';
-                setTimeout(() => { seqTrad.style.display = 'none'; }, 500);
-            }, 3500);
+                setTimeout(() => { seqTrad.style.display = 'none'; }, 400);
+            }, 2000); // Accelerated from 3500
 
             setTimeout(() => {
                 seqFjall.style.opacity = '0';
-                setTimeout(() => { seqFjall.style.display = 'none'; }, 500);
-            }, 7000);
+                setTimeout(() => { seqFjall.style.display = 'none'; }, 400);
+            }, 4500); // Accelerated from 7000
 
             setTimeout(() => {
                 // Trigger Logo Slam
@@ -1362,7 +1365,7 @@
                 // Add brand shimmer/reflective glow before exit
                 setTimeout(() => {
                     logoSvg.classList.add('glow-reveal');
-                }, 600);
+                }, 500);
 
                 // Fade out the loader completely
                 setTimeout(() => {
@@ -1375,9 +1378,9 @@
                     document.getElementById('navbar').style.opacity = '1';
                     document.getElementById('navbar').style.pointerEvents = 'auto';
                     
-                }, 2200);
+                }, 1800); // Faster exit
 
-            }, 7300); 
+            }, 4800); // Accelerated from 7300
         });
 
         // 4. Lenis Smooth Scrolling Setup
@@ -1389,22 +1392,25 @@
             smooth: true,
         });
 
-        // --- MOVING WALL PARALLAX SETUP ---
+        // --- MOVING WALL PARALLAX SETUP (Lightweight for Mobile) ---
         const bgGlows = document.querySelectorAll('.ambient-glow, .ambient-glow-dark');
         const noiseBg = document.querySelector('.noise-overlay');
+        const isMobile = window.matchMedia("(max-width: 768px)").matches;
         
         let targetX = 0; let targetY = 0;
         let currentX = 0; let currentY = 0;
 
         // Mouse Tracking
         window.addEventListener('mousemove', (e) => {
-            targetX = (e.clientX / window.innerWidth - 0.5) * 2; 
-            targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+            if (!isMobile) {
+                targetX = (e.clientX / window.innerWidth - 0.5) * 2; 
+                targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+            }
         });
 
         // Mobile Gyroscope Tracking (moves the wall as user physically moves phone)
         window.addEventListener('deviceorientation', (e) => {
-            if (e.gamma !== null && e.beta !== null) {
+            if (isMobile && e.gamma !== null && e.beta !== null) {
                 // Gamma: left/right tilt (-90 to 90) -> clamp to roughly -45 to 45
                 let gamma = e.gamma;
                 // Beta: front/back tilt (-180 to 180) -> offset resting position
@@ -1422,19 +1428,19 @@
             currentX += (targetX - currentX) * 0.05;
             currentY += (targetY - currentY) * 0.05;
 
-            // Apply Parallax to glows
+            // Apply Parallax to glows (Reduced movement bounds on mobile)
             bgGlows.forEach((glow, i) => {
-                const moveX = (i % 2 === 0 ? 50 : -60);
-                const moveY = (i % 2 === 0 ? 60 : -50);
-                // Slight scroll parallax
-                const scrollParallax = window.scrollY * (i % 2 === 0 ? 0.08 : 0.12);
+                const moveX = isMobile ? (i % 2 === 0 ? 15 : -20) : (i % 2 === 0 ? 50 : -60);
+                const moveY = isMobile ? (i % 2 === 0 ? 20 : -15) : (i % 2 === 0 ? 60 : -50);
+                // Slight scroll parallax (Lighter on mobile CPU)
+                const scrollParallax = window.scrollY * (i % 2 === 0 ? (isMobile ? 0.05 : 0.08) : (isMobile ? 0.08 : 0.12));
                 
                 const yPos = (currentY * moveY) + scrollParallax;
                 glow.style.transform = `translate3d(${currentX * moveX}px, ${yPos}px, 0)`;
             });
 
-            // Apply subtle perspective shift to noise overlay
-            if(noiseBg) {
+            // Apply subtle perspective shift to noise overlay (Desktop ONLY to preserve mobile battery/performance)
+            if(noiseBg && !isMobile) {
                 noiseBg.style.transform = `translate3d(${currentX * -15}px, ${currentY * -15}px, 0)`;
             }
 
