@@ -47,7 +47,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* --- IMMERSIVE TEXTURES & GLOWS (Moving Wall Optimised) --- */
+        /* --- IMMERSIVE TEXTURES & GLOWS (Performance Optimised) --- */
         .noise-overlay {
             /* Expanded to 120% to prevent edge clipping during parallax movement */
             position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: 9998; pointer-events: none; opacity: 0.04;
@@ -157,7 +157,7 @@
         .form-input:focus { outline: none; border-bottom-color: #53d3a5; background: rgba(83, 211, 165, 0.02); padding-left: 1rem; }
         
         /* Educational EPS Simulator Container */
-        #sim-container { position: relative; width: 100%; height: 500px; border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(10,13,11,0) 0%, rgba(10,13,11,0.9) 100%); display: flex; flex-direction: column; transform: translateZ(0); }
+        #sim-container { position: relative; width: 100%; height: auto; min-height: 550px; border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(10,13,11,0) 0%, rgba(10,13,11,0.9) 100%); display: flex; flex-direction: column; transform: translateZ(0); }
         .sim-layer { transition: all 1s cubic-bezier(0.2, 0, 0, 1); opacity: 0; transform: translateY(-20px); will-change: transform, opacity; }
         .sim-layer.active { opacity: 1; transform: translateY(0); }
         .sim-progress-track { height: 2px; background: rgba(255,255,255,0.1); width: 100%; position: relative; }
@@ -177,14 +177,40 @@
             border-radius: 2rem; max-width: 1000px; width: 100%; position: relative;
             transform: translateY(30px) scale(0.98); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
             box-shadow: 0 40px 100px -20px rgba(83, 211, 165, 0.15); overflow: hidden;
-            display: flex; flex-direction: column; max-height: 90vh;
+            display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh;
         }
         @media (min-width: 768px) { .asset-modal-content { flex-direction: row; } }
         .asset-modal-overlay.active .asset-modal-content { transform: translateY(0) scale(1); opacity: 1; }
         
-        .asset-image-col { width: 100%; height: 250px; min-height: 250px; position: relative; overflow: hidden; flex-shrink: 0; }
+        /* Dedicated styles for the secure Investor Modal */
+        .investor-modal-content {
+            background: rgba(10, 13, 11, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem; max-width: 800px; width: 100%; position: relative;
+            transform: translateY(30px) scale(0.98); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+            box-shadow: 0 40px 100px -20px rgba(83, 211, 165, 0.15); overflow: hidden;
+        }
+        .asset-modal-overlay.active .investor-modal-content { transform: translateY(0) scale(1); opacity: 1; }
+
+        /* Admin / Generator Modal Styles */
+        .admin-modal-content {
+            background: rgba(3, 5, 4, 0.95); border: 1px solid rgba(83, 211, 165, 0.3);
+            border-radius: 1.5rem; position: relative;
+            transform: translateY(30px) scale(0.98); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+            box-shadow: 0 0 80px rgba(83, 211, 165, 0.15); overflow: hidden;
+        }
+        .asset-modal-overlay.active .admin-modal-content { transform: translateY(0) scale(1); opacity: 1; }
+
+        /* Dashboard Styles */
+        #dataroom-dashboard {
+            opacity: 0; pointer-events: none; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #dataroom-dashboard.active {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .asset-image-col { width: 100%; height: 25vh; min-height: 200px; position: relative; overflow: hidden; flex-shrink: 0; }
         @media (min-width: 768px) { .asset-image-col { width: 45%; height: auto; min-height: auto; } }
-        .asset-data-col { width: 100%; padding: 2rem; overflow-y: auto; }
+        .asset-data-col { width: 100%; padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
         @media (min-width: 768px) { .asset-data-col { width: 55%; padding: 3.5rem; } }
 
         @keyframes scan {
@@ -207,9 +233,10 @@
     <!-- Mobile Menu Overlay -->
     <div id="mobile-menu" class="fixed inset-0 bg-obsidian/95 backdrop-blur-xl z-30 flex flex-col items-center justify-center space-y-8 opacity-0 pointer-events-none transition-all duration-500">
         <a href="#story" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Our Story</a>
-        <a href="#paradigm" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">The Hierarchy</a>
+        <a href="#paradigm" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">The Ecosystem</a>
         <a href="#epicentre" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Global Hubs</a>
         <a href="#portfolio" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Assets</a>
+        <a href="#investors" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Investors</a>
         <a href="#initiate" class="mt-8 px-8 py-4 rounded-full bg-brandLight text-obsidian font-bold uppercase tracking-widest" onclick="toggleMobileMenu()">Engage HQ</a>
     </div>
 
@@ -289,9 +316,10 @@
             
             <div class="hidden md:flex items-center space-x-10 text-xs font-bold tracking-widest text-white uppercase">
                 <a href="#story" class="hover:text-brandLight transition-colors">Our Story</a>
-                <a href="#paradigm" class="hover:text-brandLight transition-colors">The Hierarchy</a>
+                <a href="#paradigm" class="hover:text-brandLight transition-colors">The Ecosystem</a>
                 <a href="#epicentre" class="hover:text-brandLight transition-colors">Global Hubs</a>
                 <a href="#portfolio" class="hover:text-brandLight transition-colors">Assets</a>
+                <a href="#investors" class="hover:text-brandLight transition-colors">Investors</a>
                 <a href="#initiate" class="px-6 py-3 rounded-full bg-white text-obsidian hover:bg-brandLight transition-all">Engage HQ</a>
             </div>
             
@@ -558,7 +586,7 @@
         </div>
     </section>
 
-    <!-- Section 3: The Holding Ecosystem -->
+    <!-- Section 3: The Ecosystem -->
     <section id="paradigm" class="py-24 md:py-32 relative bg-[#060807] border-t border-white/5">
         
         <!-- Expanded Depth Background Glow -->
@@ -567,7 +595,7 @@
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12">
             
             <div class="max-w-3xl mb-16 md:mb-24 reveal">
-                <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">The Hierarchy</p>
+                <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">The Ecosystem</p>
                 <h2 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-6 leading-[1.1]">The Ecosystem of<br><span class="text-steel">Absolute Efficiency.</span></h2>
                 <p class="text-steel text-base md:text-lg font-light leading-relaxed">
                     Fjäll Group is the overarching intelligence—managing governance, capital allocation, and strategic control. Beneath it, two specialised pillars operate with absolute friction-less synergy.
@@ -800,21 +828,21 @@
                     <p id="modal-desc" class="text-steel font-light text-xs md:text-sm lg:text-base leading-relaxed mb-6 md:mb-8 border-b border-white/10 pb-6 md:pb-8"></p>
                     
                     <div class="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p id="modal-m1-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
-                            <p id="modal-m1-value" class="text-white font-mono text-sm md:text-base truncate"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                            <p id="modal-m1-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5"></p>
+                            <p id="modal-m1-value" class="text-white font-mono text-sm md:text-base leading-snug break-words"></p>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p id="modal-m2-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
-                            <p id="modal-m2-value" class="text-white font-mono text-sm md:text-base truncate"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                            <p id="modal-m2-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5"></p>
+                            <p id="modal-m2-value" class="text-white font-mono text-sm md:text-base leading-snug break-words"></p>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p id="modal-m3-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
-                            <p id="modal-m3-value" class="text-brandLight font-mono text-sm md:text-base truncate"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                            <p id="modal-m3-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5"></p>
+                            <p id="modal-m3-value" class="text-brandLight font-mono text-sm md:text-base leading-snug break-words"></p>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p id="modal-m4-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
-                            <p id="modal-m4-value" class="text-brandLight font-mono text-sm md:text-base flex items-center gap-2 truncate"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                            <p id="modal-m4-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5"></p>
+                            <div id="modal-m4-value" class="text-brandLight font-mono text-sm md:text-base flex items-start gap-2 leading-snug break-words"></div>
                         </div>
                     </div>
                 </div>
@@ -826,7 +854,359 @@
         </div>
     </div>
 
-    <!-- Section 6: Initiate (Conversion Form) -->
+    <!-- Section 6: Capital & Investors -->
+    <section id="investors" class="py-24 md:py-32 relative bg-obsidian overflow-hidden border-t border-white/5 z-10">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1633630656037-1279ce857850?q=80&w=2600&auto=format&fit=crop')] bg-cover bg-center opacity-[0.03] mix-blend-screen pointer-events-none"></div>
+        <div class="ambient-glow w-[500px] h-[500px] top-[10%] left-[-200px] pointer-events-none"></div>
+
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center reveal">
+                
+                <div class="lg:col-span-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-1.5 h-1.5 bg-brandLight rounded-full"></div>
+                        <p class="text-brandLight text-[10px] font-mono font-bold tracking-[0.3em] uppercase">Restricted Access // Tier-1 Capital</p>
+                    </div>
+                    <h2 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-8 text-white leading-[1.05]">Institutional<br><span class="text-steel">Capital.</span></h2>
+                    <p class="text-steel text-base md:text-lg font-light leading-relaxed max-w-lg mb-10">
+                        Fjäll Group operates a strictly closed-loop financial ecosystem. We invite aligned sovereign funds, institutional allocators, and UHNW partners to explore our private dataroom for strategic, high-yield deployment opportunities in sustainable infrastructure.
+                    </p>
+                </div>
+
+                <div class="lg:col-span-5 lg:col-start-8">
+                    <!-- Secure Vault Interface -->
+                    <div class="glass-card rounded-[2rem] p-8 md:p-12 border border-brandLight/20 bg-brandLight/[0.02] shadow-[0_0_40px_rgba(83,211,165,0.05)] relative overflow-hidden group">
+                        <!-- Subtle Terminal Scanline -->
+                        <div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.4)_50%)] bg-[length:100%_4px] pointer-events-none z-10 opacity-50"></div>
+                        
+                        <div class="relative z-20">
+                            <div class="flex items-center justify-between mb-10">
+                                <div class="flex items-center gap-3 px-3 py-1.5 rounded-sm bg-red-500/10 border border-red-500/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                                    <span class="text-red-400 text-[9px] font-mono tracking-[0.2em] uppercase">Vault Locked</span>
+                                </div>
+                                <i data-lucide="shield" class="w-5 h-5 text-white/20 group-hover:text-brandLight/50 transition-colors"></i>
+                            </div>
+                            
+                            <h3 class="text-2xl md:text-3xl font-black text-white tracking-tighter mb-4">Private Dataroom</h3>
+                            <p class="text-steel font-light text-sm leading-relaxed mb-10">
+                                Access strictly controlled financial models, deployment roadmaps, and our proprietary engineering IP. Unauthorised access is logged and prohibited.
+                            </p>
+                            
+                            <button onclick="openInvestorModal()" class="w-full py-4 md:py-5 rounded-xl bg-white text-obsidian font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-brandLight transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(83,211,165,0.3)] flex items-center justify-center gap-3 relative z-30">
+                                <i data-lucide="key" class="w-4 h-4"></i> Enter Cryptographic Key
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- INVESTOR PRIVATE MODAL -->
+    <div class="asset-modal-overlay" id="investor-modal">
+        <div class="investor-modal-content flex flex-col md:flex-row rounded-[2rem] border-white/10 bg-obsidian shadow-2xl">
+            
+            <!-- Left: Branding & Status -->
+            <div class="w-full md:w-2/5 bg-charcoal relative flex flex-col justify-between p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/5">
+                <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#53d3a5 1.5px, transparent 1.5px); background-size: 16px 16px;"></div>
+                
+                <div class="relative z-10">
+                    <svg viewBox="0 0 350 100" class="h-6 md:h-8 w-auto mb-8 md:mb-12 opacity-50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,15 90,35 50,55 10,35" fill="#53d3a5"/>
+                        <polygon points="10,35 50,55 50,95 10,75" fill="#408b81"/>
+                        <polygon points="90,35 90,75 50,95 50,55" fill="#36776c"/>
+                        <text x="110" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="44" fill="#ffffff" letter-spacing="-1">FJÄLL</text>
+                        <text x="112" y="88" font-family="'Inter', sans-serif" font-weight="500" font-size="34" fill="#dddddd" letter-spacing="4">GROUP</text>
+                    </svg>
+                    <h4 class="text-white text-lg md:text-xl font-black tracking-tight mb-2">Institutional Capital</h4>
+                    <p class="text-steel text-[10px] md:text-xs font-mono uppercase tracking-widest leading-relaxed">Secure Dataroom &<br>Financial Modelling.</p>
+                </div>
+                
+                <div class="relative z-10 mt-12 md:mt-0">
+                    <p class="text-brandLight font-mono text-[9px] md:text-[10px] uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-brandLight rounded-full animate-pulse shadow-[0_0_8px_rgba(83,211,165,1)]"></span> Connection Secure
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Authentication Terminal / Forms -->
+            <div class="w-full md:w-3/5 p-8 md:p-12 relative flex flex-col justify-center bg-obsidian min-h-[400px]">
+                <button class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white hover:text-obsidian hover:border-white transition-all z-20" onclick="closeInvestorModal()">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+                
+                <!-- STATE 1: Login -->
+                <div id="investor-login-state">
+                    <h3 class="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">Authentication Required</h3>
+                    <p class="text-steel font-light text-xs md:text-sm leading-relaxed mb-10">Enter your provided cryptographic token to decrypt the institutional dataroom payload.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="relative mb-6">
+                            <input type="text" id="auth-token-input" placeholder="XXXX - XXXX - XXXX" class="w-full bg-transparent border-b border-white/20 px-2 py-4 text-white font-mono text-lg md:text-xl tracking-[0.3em] md:tracking-[0.5em] text-center focus:outline-none focus:border-brandLight transition-colors placeholder:text-white/10 uppercase">
+                        </div>
+                        
+                        <button id="auth-submit-btn" onclick="authenticateInvestor()" class="w-full py-4 rounded-xl bg-brandLight/10 text-brandLight border border-brandLight/30 font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-brandLight hover:text-obsidian transition-all shadow-[0_0_15px_rgba(83,211,165,0.1)] hover:shadow-[0_0_25px_rgba(83,211,165,0.4)] flex justify-center items-center gap-2">
+                            <span id="auth-btn-text">Decrypt Payload</span> <i id="auth-btn-icon" data-lucide="unlock" class="w-3 h-3 md:w-4 md:h-4"></i>
+                        </button>
+                        
+                        <!-- Error Message Container -->
+                        <p id="auth-error-msg" class="text-red-500 font-mono text-[9px] md:text-[10px] text-center uppercase tracking-widest mt-2 hidden"></p>
+                    </div>
+                    
+                    <div class="mt-10 pt-8 border-t border-white/5 text-center">
+                        <p class="text-steel text-[10px] md:text-xs font-light mb-3">Institutional allocator without access?</p>
+                        <button onclick="toggleInvestorState('request')" class="text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest hover:text-brandLight transition-colors border-b border-white/30 hover:border-brandLight pb-1">Request Private Access &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- STATE 2: Request Access -->
+                <div id="investor-request-state" class="hidden">
+                    <h3 class="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">Request Access</h3>
+                    <p class="text-steel font-light text-xs md:text-sm leading-relaxed mb-8">Submit your institutional profile for compliance review. Access is strictly vetted.</p>
+                    
+                    <div class="space-y-5">
+                        <input type="text" placeholder="Institution / Fund Name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white font-light text-sm focus:outline-none focus:border-brandLight transition-colors placeholder:text-white/30">
+                        <input type="email" placeholder="Corporate Email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white font-light text-sm focus:outline-none focus:border-brandLight transition-colors placeholder:text-white/30">
+                        <input type="text" placeholder="AUM / Capital Allocation Focus" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white font-light text-sm focus:outline-none focus:border-brandLight transition-colors placeholder:text-white/30">
+                        
+                        <button onclick="submitRequestAccess()" class="w-full py-4 mt-2 rounded-xl bg-white text-obsidian font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-brandLight transition-colors flex justify-center items-center gap-2">
+                            Submit Profile <i data-lucide="send" class="w-3 h-3 md:w-4 md:h-4"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-white/5 text-center">
+                        <button onclick="toggleInvestorState('login')" class="text-steel hover:text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto">
+                            <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Authentication
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STATE 3: Request Success -->
+                <div id="investor-success-state" class="hidden text-center py-8">
+                    <div class="w-16 h-16 rounded-full bg-brandLight/20 flex items-center justify-center mx-auto mb-6 border border-brandLight/40">
+                        <i data-lucide="check" class="text-brandLight w-8 h-8"></i>
+                    </div>
+                    <h4 class="text-xl md:text-2xl font-black text-white mb-4">Profile Submitted</h4>
+                    <p class="text-steel font-light text-xs md:text-sm leading-relaxed max-w-sm mx-auto mb-8">Our compliance team is reviewing your institutional application. A cryptographic token will be issued via secure channels upon approval.</p>
+                    <button onclick="closeInvestorModal()" class="text-brandLight text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors border-b border-brandLight/30 hover:border-white pb-1">Return to Portal</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ROOT TERMINAL: ADMIN AUTHENTICATION -->
+    <div class="asset-modal-overlay z-[25000]" id="admin-auth-modal">
+        <div class="admin-modal-content w-full max-w-md p-8 md:p-12 border-brandLight/30 bg-[#020302]">
+            <p class="text-brandLight font-mono text-[10px] mb-6 tracking-[0.2em] flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4"></i> fjall_os // root_access</p>
+            <h3 class="text-2xl font-black text-white tracking-tighter mb-8 uppercase">System Override</h3>
+            
+            <input type="password" id="admin-passkey-input" placeholder="ENTER ROOT PASSKEY" class="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white font-mono text-lg tracking-[0.3em] focus:outline-none focus:border-brandLight transition-colors mb-6 uppercase">
+            
+            <p id="admin-error-msg" class="text-red-500 font-mono text-[10px] tracking-widest uppercase mb-6 hidden">ERROR // INVALID CREDENTIALS</p>
+            
+            <button onclick="verifyAdmin()" class="w-full py-4 bg-brandLight/10 text-brandLight font-mono text-xs uppercase tracking-widest hover:bg-brandLight hover:text-obsidian transition-colors border border-brandLight/30 flex justify-center items-center gap-2">
+                Execute Directive <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+            </button>
+            <button onclick="closeAdminAuth()" class="w-full mt-4 py-3 text-steel font-mono text-[10px] uppercase tracking-widest hover:text-white transition-colors">
+                Abort Protocol
+            </button>
+        </div>
+    </div>
+
+    <!-- ROOT TERMINAL: CRYPTOGRAPHIC CODE GENERATOR -->
+    <div class="asset-modal-overlay z-[25000]" id="admin-gen-modal">
+        <div class="admin-modal-content w-full max-w-3xl border-brandLight/30 bg-[#020302] overflow-hidden relative">
+            <!-- Scanline -->
+            <div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(83,211,165,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-0"></div>
+            
+            <div class="relative z-10 p-8 md:p-12">
+                <div class="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
+                    <div>
+                        <p class="text-brandLight font-mono text-[10px] tracking-[0.2em] mb-1">Fjäll Central Command</p>
+                        <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-widest">Cryptographic Key Generator</h2>
+                    </div>
+                    <button onclick="closeAdminGen()" class="text-steel hover:text-red-400 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Engine Side -->
+                    <div>
+                        <p class="text-white/50 font-mono text-[10px] mb-6 uppercase tracking-widest">Network Status: <span class="text-brandLight">Online & Encrypted</span></p>
+                        <p class="text-steel font-light text-xs leading-relaxed mb-8">Generate single-use or master-tier cryptographic tokens to grant institutional allocators access to the private dataroom.</p>
+                        
+                        <button onclick="generateNewKey()" class="w-full py-5 bg-brandLight text-obsidian shadow-[0_0_20px_rgba(83,211,165,0.3)] font-bold font-mono text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-3 mb-6 relative overflow-hidden group/gen">
+                            <span class="relative z-10">Forge Protocol Key</span> <i data-lucide="cpu" class="w-4 h-4 relative z-10 group-hover/gen:rotate-90 transition-transform"></i>
+                            <div class="absolute inset-0 bg-white opacity-0 group-hover/gen:opacity-100 transition-opacity z-0"></div>
+                        </button>
+                        
+                        <div id="new-key-display" class="w-full p-6 bg-white/5 border border-brandLight/50 text-brandLight font-mono text-center text-xl md:text-2xl tracking-[0.3em] hidden rounded-xl break-words relative">
+                            <!-- Injected Key String goes here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Registry Side -->
+                    <div class="md:border-l md:border-white/10 md:pl-10">
+                        <div class="flex justify-between items-end mb-6">
+                            <p class="text-white/50 font-mono text-[10px] uppercase tracking-widest">Active Live Keys</p>
+                            <span class="text-[9px] font-mono text-brandLight border border-brandLight/30 px-2 py-1 rounded bg-brandLight/10 animate-pulse">LIVE DB</span>
+                        </div>
+                        <ul id="active-keys-list" class="space-y-3 font-mono text-xs md:text-sm text-white/80 h-48 md:h-64 overflow-y-auto pr-3 no-scrollbar">
+                            <!-- Injected Active Keys go here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL SCREEN DUMMY DATAROOM DASHBOARD -->
+    <div id="dataroom-dashboard" class="fixed inset-0 z-[20000] bg-[#030504] flex-col">
+        <!-- Top bar -->
+        <div class="h-16 md:h-20 border-b border-white/10 flex items-center justify-between px-6 md:px-10 bg-charcoal shrink-0">
+            <div class="flex items-center gap-4">
+                <i data-lucide="shield-check" class="text-brandLight w-5 h-5 md:w-6 md:h-6"></i>
+                <div>
+                    <span class="text-white font-mono text-xs md:text-sm tracking-widest uppercase block leading-none mb-1">Fjäll Secure Dataroom</span>
+                    <span class="text-brandLight text-[9px] font-mono tracking-widest uppercase block leading-none">Access Level: Institutional</span>
+                </div>
+            </div>
+            <button onclick="closeDataroom()" class="text-steel hover:text-red-400 text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-2 transition-colors border border-white/10 hover:border-red-400/30 px-4 py-2 rounded-lg bg-white/5">
+                <i data-lucide="log-out" class="w-3 h-3 md:w-4 md:h-4"></i> Disconnect
+            </button>
+        </div>
+        <!-- Content Area -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Sidebar Navigation -->
+            <div class="w-64 border-r border-white/10 bg-charcoal/30 hidden md:block p-8 shrink-0">
+                <ul class="space-y-6">
+                    <li class="text-brandLight text-xs font-bold tracking-widest uppercase flex items-center gap-3 cursor-pointer"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Global Overview</li>
+                    <li class="text-steel hover:text-white cursor-pointer text-xs font-bold tracking-widest uppercase flex items-center gap-3 transition-colors"><i data-lucide="bar-chart-2" class="w-4 h-4"></i> Financial Models</li>
+                    <li class="text-steel hover:text-white cursor-pointer text-xs font-bold tracking-widest uppercase flex items-center gap-3 transition-colors"><i data-lucide="cpu" class="w-4 h-4"></i> Engineering IP</li>
+                    <li class="text-steel hover:text-white cursor-pointer text-xs font-bold tracking-widest uppercase flex items-center gap-3 transition-colors"><i data-lucide="map" class="w-4 h-4"></i> Land Bank Registry</li>
+                    <li class="text-steel hover:text-white cursor-pointer text-xs font-bold tracking-widest uppercase flex items-center gap-3 transition-colors"><i data-lucide="file-text" class="w-4 h-4"></i> Compliance Docs</li>
+                </ul>
+            </div>
+            <!-- Main Dashboard Body -->
+            <div class="flex-1 p-6 md:p-12 overflow-y-auto bg-obsidian">
+                <div class="max-w-6xl mx-auto">
+                    <div class="flex items-end justify-between mb-10">
+                        <div>
+                            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tighter mb-2">Portfolio Overview</h2>
+                            <p class="text-steel font-mono text-xs uppercase tracking-widest">Live Data // Q3 2026</p>
+                        </div>
+                        <button class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brandLight/10 text-brandLight border border-brandLight/30 text-[10px] font-bold uppercase tracking-widest hover:bg-brandLight hover:text-obsidian transition-colors">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export Report
+                        </button>
+                    </div>
+
+                    <!-- Top KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brandLight/30 transition-colors">
+                            <p class="text-steel text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2"><i data-lucide="dollar-sign" class="w-3 h-3"></i> Total Capital Deployed</p>
+                            <p class="text-3xl font-mono text-white tracking-tight">$854.2M</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brandLight/30 transition-colors">
+                            <p class="text-steel text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2"><i data-lucide="trending-up" class="w-3 h-3"></i> Blended Target IRR</p>
+                            <p class="text-3xl font-mono text-brandLight tracking-tight">18.4%</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brandLight/30 transition-colors">
+                            <p class="text-steel text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2"><i data-lucide="box" class="w-3 h-3"></i> Active EPS Modules</p>
+                            <p class="text-3xl font-mono text-white tracking-tight">4,120</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brandLight/30 transition-colors">
+                            <p class="text-steel text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2"><i data-lucide="leaf" class="w-3 h-3"></i> Est. Carbon Offset</p>
+                            <p class="text-3xl font-mono text-white tracking-tight">-12.4k T</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart Area -->
+                    <div class="p-6 md:p-8 rounded-2xl bg-white/5 border border-white/10 mb-10 relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-8 relative z-20">
+                            <h4 class="text-white font-bold tracking-widest uppercase text-xs">Cumulative Yield Projection (5YR)</h4>
+                            <div class="flex gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brandLight"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/20"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/20"></span>
+                            </div>
+                        </div>
+                        <!-- Dummy SVG Graph -->
+                        <div class="h-48 md:h-64 w-full relative z-10">
+                            <!-- Graph Grid lines -->
+                            <div class="absolute inset-0 flex flex-col justify-between opacity-10">
+                                <div class="w-full h-px bg-white"></div>
+                                <div class="w-full h-px bg-white"></div>
+                                <div class="w-full h-px bg-white"></div>
+                                <div class="w-full h-px bg-white"></div>
+                                <div class="w-full h-px bg-white"></div>
+                            </div>
+                            <svg viewBox="0 0 800 200" class="w-full h-full overflow-visible preserve-3d" preserveAspectRatio="none">
+                                <path d="M0,180 Q100,170 200,140 T400,100 T600,60 T800,20" fill="none" stroke="#53d3a5" stroke-width="4" class="drop-shadow-[0_0_10px_rgba(83,211,165,0.8)]"/>
+                                <path d="M0,180 Q100,170 200,140 T400,100 T600,60 T800,20 L800,200 L0,200 Z" fill="url(#grad)" opacity="0.2"/>
+                                <defs>
+                                    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#53d3a5" />
+                                        <stop offset="100%" stop-color="transparent" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- Data points -->
+                                <circle cx="200" cy="140" r="4" fill="#fff" stroke="#53d3a5" stroke-width="2"/>
+                                <circle cx="400" cy="100" r="4" fill="#fff" stroke="#53d3a5" stroke-width="2"/>
+                                <circle cx="600" cy="60" r="4" fill="#fff" stroke="#53d3a5" stroke-width="2"/>
+                                <circle cx="800" cy="20" r="4" fill="#fff" stroke="#53d3a5" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Table -->
+                    <div class="rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-white/5 text-steel font-mono text-[10px] uppercase tracking-widest border-b border-white/10">
+                                    <tr>
+                                        <th class="px-6 py-4">Asset Vector</th>
+                                        <th class="px-6 py-4">Location</th>
+                                        <th class="px-6 py-4">Status</th>
+                                        <th class="px-6 py-4">Allocation</th>
+                                        <th class="px-6 py-4">Proj. IRR</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5 text-white/90 font-light">
+                                    <tr class="hover:bg-white/5 transition-colors cursor-pointer">
+                                        <td class="px-6 py-4 font-medium">Archipelago Range</td>
+                                        <td class="px-6 py-4">Indonesia</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full bg-brandLight/20 text-brandLight text-[9px] font-bold uppercase tracking-widest border border-brandLight/30">Deploying</span></td>
+                                        <td class="px-6 py-4 font-mono">$125.0M</td>
+                                        <td class="px-6 py-4 font-mono text-brandLight">19.2%</td>
+                                    </tr>
+                                    <tr class="hover:bg-white/5 transition-colors cursor-pointer">
+                                        <td class="px-6 py-4 font-medium">WA Residential Masterplan</td>
+                                        <td class="px-6 py-4">Western Australia</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full bg-white/10 text-white/70 text-[9px] font-bold uppercase tracking-widest border border-white/20">Land Banked</span></td>
+                                        <td class="px-6 py-4 font-mono">$320.5M</td>
+                                        <td class="px-6 py-4 font-mono text-brandLight">16.8%</td>
+                                    </tr>
+                                    <tr class="hover:bg-white/5 transition-colors cursor-pointer">
+                                        <td class="px-6 py-4 font-medium">FGT Mass Forge Hub</td>
+                                        <td class="px-6 py-4">Jakarta, ID</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full bg-brandLight/20 text-brandLight text-[9px] font-bold uppercase tracking-widest border border-brandLight/30">Active Yield</span></td>
+                                        <td class="px-6 py-4 font-mono">$85.0M</td>
+                                        <td class="px-6 py-4 font-mono text-brandLight">14.5%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 7: Initiate (Conversion Form) -->
     <section id="initiate" class="py-24 md:py-48 relative bg-obsidian border-t border-white/5">
         
         <!-- Expanded Depth Background Glow -->
@@ -881,17 +1261,17 @@
     <footer class="border-t border-white/5 bg-charcoal pt-16 md:pt-24 pb-8 md:pb-12">
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row justify-between items-start gap-12 md:gap-16 text-sm text-steel">
             
-            <div class="max-w-sm">
-                <svg viewBox="0 0 350 100" class="h-6 md:h-8 w-auto mb-6 md:mb-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="max-w-sm relative">
+                <svg viewBox="0 0 350 100" class="h-6 md:h-8 w-auto mb-6 md:mb-8 relative z-10 pointer-events-none" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="50,15 90,35 50,55 10,35" fill="#53d3a5"/>
                     <polygon points="10,35 50,55 50,95 10,75" fill="#408b81"/>
                     <polygon points="90,35 90,75 50,95 50,55" fill="#36776c"/>
                     <text x="110" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="44" fill="#53d3a5" letter-spacing="-1">FJÄLL</text>
                     <text x="112" y="88" font-family="'Inter', sans-serif" font-weight="500" font-size="34" fill="#36776c" letter-spacing="4">GROUP</text>
                 </svg>
-                <p class="font-light leading-relaxed text-sm md:text-base tracking-tight">
-                    Governance. Technology. Execution.<br>The holding group re-architecting global infrastructure.
-                </p>
+                
+                <!-- HIDDEN ADMIN TRIGGER -->
+                <div onclick="openAdminAuth()" class="w-full h-16 absolute bottom-[-20px] left-0 cursor-default z-20" title="System Diagnostic"></div>
             </div>
             
             <div class="flex flex-col sm:flex-row flex-wrap gap-12 sm:gap-20 font-medium">
@@ -1252,9 +1632,9 @@
             modalM3Label.innerText = data.metric3Label;
             modalM3Value.innerText = data.metric3Value;
             
-            // Rebuild m4 value to include the pulsing dot for visual effect
+            // Rebuild m4 value to include the pulsing dot for visual effect and align to top in case of wrapping text
             modalM4Label.innerText = data.metric4Label;
-            modalM4Value.innerHTML = `<span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-brandLight rounded-full animate-pulse shadow-[0_0_8px_rgba(83,211,165,1)] flex-shrink-0"></span> ${data.metric4Value}`;
+            modalM4Value.innerHTML = `<span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-brandLight rounded-full animate-pulse shadow-[0_0_8px_rgba(83,211,165,1)] flex-shrink-0 mt-1.5"></span> <span>${data.metric4Value}</span>`;
 
             assetModal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1284,8 +1664,231 @@
             if (e.target === this) closeAssetModal();
         });
 
+        // 8. --- INVESTOR MODAL LOGIC ---
+        const investorModal = document.getElementById('investor-modal');
+        const loginState = document.getElementById('investor-login-state');
+        const requestState = document.getElementById('investor-request-state');
+        const successState = document.getElementById('investor-success-state');
+        
+        // Dataroom Elements
+        const dataroomDashboard = document.getElementById('dataroom-dashboard');
 
-        // 8. --- EDUCATIONAL EPS SIMULATOR ---
+        window.openInvestorModal = function() {
+            // Reset states
+            loginState.style.display = 'block';
+            requestState.style.display = 'none';
+            successState.style.display = 'none';
+            document.getElementById('auth-token-input').value = '';
+            
+            investorModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        window.closeInvestorModal = function() {
+            investorModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        investorModal.addEventListener('click', function(e) {
+            if (e.target === this) closeInvestorModal();
+        });
+
+        window.toggleInvestorState = function(state) {
+            if(state === 'request') {
+                loginState.style.display = 'none';
+                requestState.style.display = 'block';
+            } else if (state === 'login') {
+                requestState.style.display = 'none';
+                loginState.style.display = 'block';
+            }
+        }
+
+        window.submitRequestAccess = function() {
+            requestState.style.display = 'none';
+            successState.style.display = 'block';
+            lucide.createIcons();
+        }
+
+        // Secure Backend Decryption Simulation
+        window.authenticateInvestor = function() {
+            const inputField = document.getElementById('auth-token-input');
+            const token = inputField.value.trim().toUpperCase();
+            const btn = document.getElementById('auth-submit-btn');
+            const text = document.getElementById('auth-btn-text');
+            const icon = document.getElementById('auth-btn-icon');
+            const errorMsg = document.getElementById('auth-error-msg');
+            
+            // Database verification (Fetch from localStorage)
+            let validKeys = [];
+            try {
+                validKeys = JSON.parse(localStorage.getItem('fjall_valid_keys') || '[]');
+            } catch(e) {}
+            
+            // Permanent hardcoded master key for demonstration testing
+            validKeys.push('FJALL-MASTER');
+            
+            // UI Loading state
+            text.innerText = 'Decrypting Database...';
+            icon.setAttribute('data-lucide', 'loader-2');
+            icon.classList.add('animate-spin');
+            errorMsg.classList.add('hidden');
+            lucide.createIcons();
+            
+            // Simulate API / Decryption wait time
+            setTimeout(() => {
+                
+                if (validKeys.includes(token)) {
+                    // Valid Access Granted
+                    text.innerText = 'Payload Decrypted';
+                    icon.setAttribute('data-lucide', 'check-circle');
+                    icon.classList.remove('animate-spin');
+                    lucide.createIcons();
+                    
+                    setTimeout(() => {
+                        window.open('https://jplovensa.github.io/fjall-investment-memo/#narrative', '_blank');
+                        
+                        // Reset UI State after successful external routing
+                        text.innerText = 'Decrypt Payload';
+                        icon.setAttribute('data-lucide', 'unlock');
+                        inputField.value = '';
+                        closeInvestorModal();
+                    }, 1000);
+                    
+                } else {
+                    // Invalid Access Denied
+                    text.innerText = 'Decrypt Payload';
+                    icon.setAttribute('data-lucide', 'unlock');
+                    icon.classList.remove('animate-spin');
+                    
+                    errorMsg.innerText = 'ACCESS DENIED // INVALID CRYPTOGRAPHIC TOKEN';
+                    errorMsg.classList.remove('hidden');
+                    lucide.createIcons();
+                }
+                
+            }, 1500);
+        }
+
+        // Add event listener for "Enter" key on investor auth input
+        document.getElementById('auth-token-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                authenticateInvestor();
+            }
+        });
+
+        // 9. --- CRYPTOGRAPHIC CODE GENERATOR (ROOT TERMINAL) LOGIC ---
+        
+        // Setup initial default DB array if empty
+        if (!localStorage.getItem('fjall_valid_keys')) {
+            localStorage.setItem('fjall_valid_keys', JSON.stringify([]));
+        }
+
+        window.openAdminAuth = function() {
+            document.getElementById('admin-auth-modal').classList.add('active');
+            document.getElementById('admin-passkey-input').value = '';
+            document.getElementById('admin-error-msg').classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        window.closeAdminAuth = function() {
+            document.getElementById('admin-auth-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Allow "Enter" key to submit admin auth
+        document.getElementById('admin-passkey-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyAdmin();
+            }
+        });
+
+        window.verifyAdmin = function() {
+            const passkey = document.getElementById('admin-passkey-input').value.trim().toUpperCase();
+            
+            // Security Firewall check
+            if (passkey === 'FJALL-ROOT') {
+                closeAdminAuth();
+                setTimeout(() => openAdminGen(), 300); // Slight delay for smooth modal transition
+            } else {
+                document.getElementById('admin-error-msg').classList.remove('hidden');
+            }
+        }
+
+        window.openAdminGen = function() {
+            document.getElementById('admin-gen-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            renderActiveKeys();
+            document.getElementById('new-key-display').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        window.closeAdminGen = function() {
+            document.getElementById('admin-gen-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Add click outside to close for admin modals
+        document.getElementById('admin-auth-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeAdminAuth();
+        });
+        document.getElementById('admin-gen-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeAdminGen();
+        });
+
+        window.generateNewKey = function() {
+            // Generate a secure 12-char pattern: FJL-[XXXX]-[XXXX]
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const part1 = Array.from({length: 4}).map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+            const part2 = Array.from({length: 4}).map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+            const newKey = `FJL-${part1}-${part2}`;
+            
+            let validKeys = [];
+            try {
+                validKeys = JSON.parse(localStorage.getItem('fjall_valid_keys') || '[]');
+            } catch(e) {}
+            
+            // Add new key to top of array and save to DB
+            validKeys.unshift(newKey);
+            localStorage.setItem('fjall_valid_keys', JSON.stringify(validKeys));
+            
+            // Update UI Display
+            const display = document.getElementById('new-key-display');
+            display.innerText = newKey;
+            display.classList.remove('hidden');
+            
+            // Flash the display for feedback
+            display.classList.add('opacity-50');
+            setTimeout(() => display.classList.remove('opacity-50'), 150);
+            
+            renderActiveKeys();
+        }
+
+        window.renderActiveKeys = function() {
+            let validKeys = [];
+            try {
+                validKeys = JSON.parse(localStorage.getItem('fjall_valid_keys') || '[]');
+            } catch(e) {}
+            
+            const list = document.getElementById('active-keys-list');
+            
+            if(validKeys.length === 0) {
+                list.innerHTML = `<li class="text-steel italic mt-4 text-center">No active keys in registry.</li>`;
+                return;
+            }
+            
+            list.innerHTML = validKeys.map(k => `
+                <li class="flex justify-between items-center bg-white/5 px-4 py-3 border border-white/5 rounded-lg group hover:border-brandLight/30 transition-colors">
+                    <span class="tracking-widest">${k}</span> 
+                    <span class="text-[9px] text-brandLight border border-brandLight/30 px-2 py-1 rounded bg-brandLight/10">ACTIVE</span>
+                </li>
+            `).join('');
+        }
+
+
+        // 10. --- EDUCATIONAL EPS SIMULATOR ---
         const simNextBtn = document.getElementById('sim-next-btn');
         const simTitle = document.getElementById('sim-title');
         const simDesc = document.getElementById('sim-desc');
