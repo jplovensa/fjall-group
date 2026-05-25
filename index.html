@@ -47,22 +47,27 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* --- IMMERSIVE TEXTURES & GLOWS (Performance Optimised) --- */
+        /* --- IMMERSIVE TEXTURES & GLOWS (Moving Wall Optimised) --- */
         .noise-overlay {
-            position: fixed; inset: 0; z-index: 9998; pointer-events: none; opacity: 0.04;
+            /* Expanded to 120% to prevent edge clipping during parallax movement */
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: 9998; pointer-events: none; opacity: 0.04;
             background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAAAAABZWVmZmZmZmZmZmZmZmZmZmZlJ6g1fAAAACHRSTlMAmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmaf70AAAAKpJREFUOMt1k0EKwCAIROF/T9G9/9ZWaDAx08lDPE+vC1JKSk+o/h0N1S+wQ/2A1X8Z0r+SIfVbhvSvZEj9liH1KxlSv2VI/UqG1G8ZUr+SIfVbhvSvZEj9liH1KxlSv2VI/UqG1G8ZUr+SIfVbhvSvZEj9liH1KxlSv2VI/UqG1G8ZUr+SIfVbhvQPaO13wL/BlywAAAAASUVORK5CYII=');
             background-repeat: repeat;
+            transform: translateZ(0);
+            will-change: transform;
         }
         
         .ambient-glow {
             position: absolute; border-radius: 50%; pointer-events: none;
             background: radial-gradient(circle closest-side, rgba(83,211,165,0.08) 0%, transparent 100%);
             transform: translateZ(0); 
+            will-change: transform;
         }
         .ambient-glow-dark {
             position: absolute; border-radius: 50%; pointer-events: none;
             background: radial-gradient(circle closest-side, rgba(54,119,108,0.06) 0%, transparent 100%);
             transform: translateZ(0);
+            will-change: transform;
         }
 
         /* --- TRADITIONAL VS FJÄLL CINEMATIC LOADER --- */
@@ -96,7 +101,7 @@
         #seq-logo { opacity: 0; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         #seq-logo.active { opacity: 1; }
 
-        .loader-svg-container { width: 380px; height: 140px; position: relative; opacity: 1; z-index: 20; transform: translateZ(0); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .loader-svg-container { width: 100%; max-width: 380px; padding: 0 2rem; height: 140px; position: relative; opacity: 1; z-index: 20; transform: translateZ(0); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .flatpack-piece { opacity: 0; }
         .pack-1.slam { transform: translate(-140px, -110px) scale(1.3) rotate(-25deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0s; }
         .pack-2.slam { transform: translate(-100px, 140px) scale(1.3) rotate(25deg); animation: slamIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
@@ -138,6 +143,12 @@
             transform: translateY(-4px) translateZ(0); box-shadow: 0 20px 40px -20px rgba(83, 211, 165, 0.1);
         }
 
+        /* Comic Book/Graphic Novel Texture Overlay */
+        .comic-screentone {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1.5px, transparent 1.5px);
+            background-size: 8px 8px;
+        }
+
         /* Form Inputs */
         .form-input {
             background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.15);
@@ -171,20 +182,36 @@
         @media (min-width: 768px) { .asset-modal-content { flex-direction: row; } }
         .asset-modal-overlay.active .asset-modal-content { transform: translateY(0) scale(1); opacity: 1; }
         
-        .asset-image-col { width: 100%; height: 250px; position: relative; overflow: hidden; }
-        @media (min-width: 768px) { .asset-image-col { width: 45%; height: auto; } }
-        .asset-data-col { width: 100%; padding: 2.5rem; overflow-y: auto; }
+        .asset-image-col { width: 100%; height: 250px; min-height: 250px; position: relative; overflow: hidden; flex-shrink: 0; }
+        @media (min-width: 768px) { .asset-image-col { width: 45%; height: auto; min-height: auto; } }
+        .asset-data-col { width: 100%; padding: 2rem; overflow-y: auto; }
         @media (min-width: 768px) { .asset-data-col { width: 55%; padding: 3.5rem; } }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-brandLight selection:text-obsidian overflow-x-hidden">
 
-    <!-- Film Grain Overlay -->
+    <!-- Film Grain Overlay (Bound to Moving Wall Parallax) -->
     <div class="noise-overlay"></div>
 
     <!-- Cinematic Letterboxing -->
     <div class="letterbox top"></div>
     <div class="letterbox bottom"></div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-obsidian/95 backdrop-blur-xl z-30 flex flex-col items-center justify-center space-y-8 opacity-0 pointer-events-none transition-all duration-500">
+        <a href="#story" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Our Story</a>
+        <a href="#paradigm" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">The Hierarchy</a>
+        <a href="#epicentre" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Global Hubs</a>
+        <a href="#portfolio" class="text-2xl font-black text-white uppercase tracking-widest hover:text-brandLight" onclick="toggleMobileMenu()">Assets</a>
+        <a href="#initiate" class="mt-8 px-8 py-4 rounded-full bg-brandLight text-obsidian font-bold uppercase tracking-widest" onclick="toggleMobileMenu()">Engage HQ</a>
+    </div>
 
     <!-- CINEMATIC BUILD STORY LOADER -->
     <div id="loader">
@@ -202,9 +229,9 @@
                     </g>
                 </svg>
             </div>
-            <div class="trad-text text-center">
-                <h2 class="text-steel font-medium tracking-[0.3em] text-sm uppercase mb-2">Traditional Construction</h2>
-                <h3 class="text-white/50 font-light tracking-[0.4em] text-xs uppercase">Slow • Wasteful • Obsolete</h3>
+            <div class="trad-text text-center px-4">
+                <h2 class="text-steel font-medium tracking-[0.3em] text-sm md:text-base uppercase mb-2">Traditional Construction</h2>
+                <h3 class="text-white/50 font-light tracking-[0.4em] text-[10px] md:text-xs uppercase">Slow • Wasteful • Obsolete</h3>
             </div>
         </div>
 
@@ -223,9 +250,9 @@
                     <polygon points="100,85 40,55 100,25 160,55" fill="#53d3a5" class="fjall-snap-3"/>
                 </svg>
             </div>
-            <div class="fjall-text text-center">
-                <h2 class="text-brandLight font-black tracking-[0.3em] text-lg md:text-xl uppercase mb-2">The Fjäll Paradigm</h2>
-                <h3 class="text-white font-medium tracking-[0.4em] text-xs uppercase">Rapid • Precise • Sustainable</h3>
+            <div class="fjall-text text-center px-4">
+                <h2 class="text-brandLight font-black tracking-[0.3em] text-base md:text-xl uppercase mb-2">The Fjäll Paradigm</h2>
+                <h3 class="text-white font-medium tracking-[0.4em] text-[10px] md:text-xs uppercase">Rapid • Precise • Sustainable</h3>
             </div>
         </div>
 
@@ -250,7 +277,7 @@
     <!-- Navigation -->
     <nav class="fixed w-full z-40 transition-all duration-500 py-6" id="navbar" style="opacity: 0; pointer-events: none;">
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12 flex justify-between items-center">
-            <a href="#" class="block cursor-pointer">
+            <a href="#" class="block cursor-pointer relative z-50">
                 <svg viewBox="0 0 350 100" class="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="50,15 90,35 50,55 10,35" fill="#ffffff"/>
                     <polygon points="10,35 50,55 50,95 10,75" fill="#dddddd"/>
@@ -267,14 +294,18 @@
                 <a href="#portfolio" class="hover:text-brandLight transition-colors">Assets</a>
                 <a href="#initiate" class="px-6 py-3 rounded-full bg-white text-obsidian hover:bg-brandLight transition-all">Engage HQ</a>
             </div>
-            <button class="md:hidden text-white"><i data-lucide="menu" class="w-6 h-6"></i></button>
+            
+            <!-- Mobile Menu Toggle Button -->
+            <button class="md:hidden text-white relative z-50" onclick="toggleMobileMenu()" id="menu-btn">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
         </div>
     </nav>
 
     <!-- Section 1: Immersive Hero & EPS Simulation -->
     <section class="relative min-h-screen flex items-center pt-24 pb-12 bg-obsidian overflow-hidden" id="hero-section" style="opacity: 0;">
         
-        <!-- Ambient Glows (Optimised) -->
+        <!-- Ambient Glows (Bound to Moving Wall Parallax) -->
         <div class="ambient-glow w-[800px] h-[800px] top-[-200px] left-[-300px]"></div>
         <div class="ambient-glow-dark w-[1000px] h-[1000px] bottom-[-300px] right-[-300px]"></div>
 
@@ -282,22 +313,22 @@
             
             <!-- Hero Copy (Left) -->
             <div class="lg:col-span-6 reveal">
-                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8 text-brandLight text-[10px] font-bold tracking-[0.2em] uppercase cursor-pointer hover:bg-white/10 transition-colors" onclick="openStory()">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8 text-brandLight text-[10px] font-bold tracking-[0.2em] uppercase cursor-pointer hover:bg-white/10 transition-colors" onclick="lenis.scrollTo('#story')">
                     <span class="w-2 h-2 rounded-full bg-brandLight animate-pulse"></span>
-                    Indonesia HQ • WA • Fukuoka
+                    Global Ecosystem • Active Deployment
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-tighter mb-8">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-tighter mb-8 break-words">
                     Spaces that Breathe.<br>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandLight to-brandDark">Structures that Last.</span>
                 </h1>
                 
-                <p class="text-lg md:text-xl text-steel font-light max-w-xl leading-relaxed mb-10 tracking-tight">
+                <p class="text-base md:text-xl text-steel font-light max-w-xl leading-relaxed mb-10 tracking-tight">
                     We believe infrastructure should protect our planet and elevate the human experience. Fjäll Group establishes a closed-loop operating system. We govern strategic capital, engineer advanced modular technology, manufacture at institutional scale, and execute elite project delivery globally.
                 </p>
                 
-                <div class="flex flex-wrap items-center gap-6">
-                    <a href="#initiate" class="px-8 py-4 rounded-full bg-white text-obsidian font-bold text-sm tracking-widest uppercase hover:bg-brandLight transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(83,211,165,0.3)]">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <a href="#initiate" class="px-8 py-4 rounded-full bg-white text-obsidian font-bold text-sm tracking-widest uppercase hover:bg-brandLight transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(83,211,165,0.3)] text-center w-full sm:w-auto">
                         Initiate Partnership
                     </a>
                     <a href="#story" class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-steel hover:text-white transition-colors">
@@ -315,7 +346,7 @@
                     <div class="p-6 border-b border-white/10 flex justify-between items-center z-10 relative bg-obsidian/40 backdrop-blur-sm">
                         <div>
                             <p class="text-[9px] font-bold text-brandLight tracking-[0.2em] uppercase mb-1">FGT Educational Simulator</p>
-                            <h3 class="text-white font-bold text-lg tracking-tight">The EPS Modular System</h3>
+                            <h3 class="text-white font-bold text-base md:text-lg tracking-tight">The EPS Modular System</h3>
                         </div>
                         <div class="text-right">
                             <p class="text-[9px] font-bold text-steel tracking-widest uppercase mb-1">Phase</p>
@@ -329,12 +360,12 @@
                     </div>
 
                     <!-- Visual Area -->
-                    <div class="flex-1 relative flex items-center justify-center p-8 overflow-hidden">
+                    <div class="flex-1 relative flex items-center justify-center p-8 overflow-hidden min-h-[220px]">
                         <!-- Isometric Grid Base -->
                         <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 40px 40px; transform: rotateX(60deg) rotateZ(-45deg) scale(1.5);"></div>
                         
                         <!-- SVG Assembly -->
-                        <svg viewBox="0 0 400 400" class="w-full h-full max-h-[250px] relative z-10 drop-shadow-2xl">
+                        <svg viewBox="0 0 400 400" class="w-full h-full max-w-[280px] md:max-w-[320px] max-h-[250px] relative z-10 drop-shadow-2xl">
                             <!-- Layer 1: Ground / Foundation -->
                             <g id="layer-foundation" class="sim-layer opacity-100 transform-none">
                                 <polygon points="200,320 80,260 200,200 320,260" fill="none" stroke="#53d3a5" stroke-width="2" stroke-dasharray="4 4"/>
@@ -358,17 +389,17 @@
                     </div>
 
                     <!-- Educational Data Area -->
-                    <div class="p-6 md:p-8 bg-obsidian/80 backdrop-blur-md border-t border-white/10 flex flex-col justify-between min-h-[160px] z-10 relative">
+                    <div class="p-6 md:p-8 bg-obsidian/80 backdrop-blur-md border-t border-white/10 flex flex-col justify-between min-h-[180px] md:min-h-[160px] z-10 relative">
                         <div>
-                            <h4 class="text-xl font-bold text-white mb-2" id="sim-title">What is an EPS System?</h4>
-                            <p class="text-steel font-light text-sm leading-relaxed" id="sim-desc">
+                            <h4 class="text-lg md:text-xl font-bold text-white mb-2" id="sim-title">What is an EPS System?</h4>
+                            <p class="text-steel font-light text-xs md:text-sm leading-relaxed" id="sim-desc">
                                 Expanded Polystyrene (EPS) Structural Insulated Panels are the future of development. This simulation demonstrates how Fjäll replaces slow, wasteful traditional construction with precision engineering.
                             </p>
                         </div>
-                        <div class="mt-6 flex justify-between items-center">
+                        <div class="mt-6 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4">
                             <span class="text-[10px] font-bold tracking-[0.2em] text-white/50 uppercase" id="sim-status">System Idle</span>
-                            <button id="sim-next-btn" class="px-6 py-2 rounded-full bg-brandLight text-obsidian hover:bg-white transition-colors text-xs font-bold tracking-widest uppercase">
-                                Initialise Simulation
+                            <button id="sim-next-btn" class="px-6 py-2.5 w-full sm:w-auto rounded-full bg-brandLight text-obsidian hover:bg-white transition-colors text-xs font-bold tracking-widest uppercase">
+                                Initialise Sequence
                             </button>
                         </div>
                     </div>
@@ -379,19 +410,22 @@
     </section>
 
     <!-- NEW SECTION: Our Story (Flowing, Immersive Narrative Journey) -->
-    <section id="story" class="py-32 relative bg-charcoal border-t border-white/5 z-20 overflow-hidden">
+    <section id="story" class="py-24 md:py-32 relative bg-charcoal border-t border-white/5 z-20 overflow-hidden">
         
+        <!-- Expanded Depth Background Glow -->
+        <div class="ambient-glow w-[600px] h-[600px] top-[10%] right-[-200px] pointer-events-none"></div>
+
         <!-- Background Decorative Grid Lines representing structural precision -->
         <div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px); background-size: 120px 120px;"></div>
 
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12 relative">
             
-            <div class="max-w-3xl mb-32 reveal">
+            <div class="max-w-3xl mb-24 md:mb-32 reveal">
                 <div class="w-12 h-12 rounded-full bg-brandLight/10 border border-brandLight/20 flex items-center justify-center mb-6">
                     <i data-lucide="book-open" class="w-5 h-5 text-brandLight"></i>
                 </div>
-                <h2 class="text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase">The Fjäll Chronicle</h2>
-                <p class="text-steel text-lg md:text-xl font-light leading-relaxed tracking-tight">
+                <h2 class="text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter mb-6 uppercase">The Fjäll Chronicle</h2>
+                <p class="text-steel text-base md:text-xl font-light leading-relaxed tracking-tight">
                     We cannot build the future using the blunt instruments of the past. The evolution of Fjäll is the story of a necessary shift—tracing how we bridged the divide between pure Swedish ecological design and vast Indonesian industrial scale to forge an entirely new paradigm in global infrastructure.
                 </p>
             </div>
@@ -400,25 +434,26 @@
             <div class="relative w-full">
                 
                 <!-- Vertical Flowing Connector Line (Desktop Centre, Mobile Left) -->
-                <div class="absolute left-4 md:left-1/2 top-4 bottom-4 w-0.5 -translate-x-1/2 bg-gradient-to-b from-red-500/40 via-brandLight/30 to-brandMid/50 z-0"></div>
+                <div class="absolute left-6 md:left-1/2 top-4 bottom-4 w-0.5 -translate-x-1/2 bg-gradient-to-b from-red-500/40 via-brandLight/30 to-brandMid/50 z-0"></div>
 
                 <!-- Chapter 1: The Weight of the Past -->
-                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center mb-40 reveal z-10">
-                    <div class="md:col-span-5 md:text-right flex flex-col md:items-end">
-                        <span class="text-red-500/80 font-mono text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT I // THE BURDEN</span>
-                        <h3 class="text-3xl font-black text-white mb-4 uppercase tracking-tighter">The Age of Extraction</h3>
+                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center mb-32 md:mb-40 reveal z-10 pl-16 md:pl-0">
+                    
+                    <div class="md:col-span-5 md:text-right flex flex-col items-start md:items-end order-1 md:order-1">
+                        <span class="text-red-500/80 font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT I // THE BURDEN</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-4 uppercase tracking-tighter">The Age of Extraction</h3>
                         <p class="text-steel text-sm md:text-base font-light leading-relaxed max-w-md">
                             We inherited a broken paradigm. For generations, building meant extracting—tearing into the earth, pouring heavy wet-mix concrete, and leaving behind a dark legacy of carbon debt. The construction industry was suffocating under its own slow, fractured weight. We knew that to build the future, we had to stop repeating the past.
                         </p>
                     </div>
                     
                     <!-- Centre Point node -->
-                    <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-red-500 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                    <div class="absolute left-0 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-red-500 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.5)]">
                         <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                     </div>
                     
-                    <div class="md:col-span-5 md:col-start-8 flex justify-center">
-                        <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-[2rem] overflow-hidden border border-red-500/20 group">
+                    <div class="md:col-span-5 md:col-start-8 flex justify-start md:justify-center order-2 md:order-2">
+                        <div class="relative aspect-square w-full max-w-[280px] md:max-w-[320px] rounded-[2rem] overflow-hidden border border-red-500/20 group">
                             <img src="https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105" alt="Industrial extraction">
                             <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-obsidian opacity-80"></div>
                             <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full opacity-60 mix-blend-overlay">
@@ -430,22 +465,23 @@
                 </div>
 
                 <!-- Chapter 2: The Swedish Genesis -->
-                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center mb-40 reveal z-10">
-                    <div class="md:col-span-5 md:col-start-8">
-                        <span class="text-brandLight font-mono text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT II // THE GENESIS</span>
-                        <h3 class="text-3xl font-black text-white mb-4 uppercase tracking-tighter">The Swedish Spark</h3>
+                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center mb-32 md:mb-40 reveal z-10 pl-16 md:pl-0">
+                    
+                    <div class="md:col-span-5 md:col-start-8 order-1 md:order-2">
+                        <span class="text-brandLight font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT II // THE GENESIS</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-4 uppercase tracking-tighter">The Swedish Spark</h3>
                         <p class="text-steel text-sm md:text-base font-light leading-relaxed max-w-md">
                             The answer began in Sweden. Driven by Nordic design principles, we engineered a proprietary system of Expanded Polystyrene (EPS) Structural Insulated Panels—a hyper-insulating, lightweight core clad in unyielding high-strength steel. It was pure, passive, and perfectly precise. Today, this technology is relentlessly advanced in our Fukuoka R&D Hub.
                         </p>
                     </div>
                     
                     <!-- Centre Point node -->
-                    <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandLight flex items-center justify-center shadow-[0_0_15px_rgba(83,211,165,0.5)]">
+                    <div class="absolute left-0 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandLight flex items-center justify-center shadow-[0_0_15px_rgba(83,211,165,0.5)]">
                         <span class="w-2 h-2 rounded-full bg-brandLight animate-pulse"></span>
                     </div>
                     
-                    <div class="md:col-span-5 md:col-start-1 md:text-right flex flex-col md:items-end md:row-start-1">
-                        <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-[2rem] overflow-hidden border border-brandLight/20 group">
+                    <div class="md:col-span-5 md:col-start-1 md:text-right flex flex-col items-start md:items-end md:row-start-1 order-2 md:order-1">
+                        <div class="relative aspect-square w-full max-w-[280px] md:max-w-[320px] rounded-[2rem] overflow-hidden border border-brandLight/20 group">
                             <img src="https://images.unsplash.com/photo-1429497419816-9ca5cfb4571a?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105" alt="Swedish architecture draft">
                             <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-obsidian opacity-80"></div>
                             <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full p-8 opacity-80">
@@ -459,22 +495,22 @@
                 </div>
 
                 <!-- Chapter 3: The Indonesian Forge -->
-                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center mb-40 reveal z-10">
-                    <div class="md:col-span-5 md:text-right flex flex-col md:items-end">
-                        <span class="text-brandMid font-mono text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT III // THE FORGE</span>
-                        <h3 class="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Indonesian Scale</h3>
+                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center mb-32 md:mb-40 reveal z-10 pl-16 md:pl-0">
+                    <div class="md:col-span-5 md:text-right flex flex-col items-start md:items-end order-1 md:order-1">
+                        <span class="text-brandMid font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT III // THE FORGE</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-4 uppercase tracking-tighter">Indonesian Scale</h3>
                         <p class="text-steel text-sm md:text-base font-light leading-relaxed max-w-md">
                             But a blueprint without scale is just a concept. To forge this new reality, we brought our Swedish architectural intelligence to the industrial heartland of Indonesia. Here, we built high-capacity, fully automated manufacturing lines. It became the perfect synthesis: Nordic design philosophy manufactured with unparalleled Indonesian industrial might.
                         </p>
                     </div>
                     
                     <!-- Centre Point node -->
-                    <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandMid flex items-center justify-center shadow-[0_0_15px_rgba(64,139,129,0.5)]">
+                    <div class="absolute left-0 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandMid flex items-center justify-center shadow-[0_0_15px_rgba(64,139,129,0.5)]">
                         <span class="w-2 h-2 rounded-full bg-brandMid animate-pulse"></span>
                     </div>
                     
-                    <div class="md:col-span-5 md:col-start-8 flex justify-center">
-                        <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-[2rem] overflow-hidden border border-brandMid/20 group">
+                    <div class="md:col-span-5 md:col-start-8 flex justify-start md:justify-center order-2 md:order-2">
+                        <div class="relative aspect-square w-full max-w-[280px] md:max-w-[320px] rounded-[2rem] overflow-hidden border border-brandMid/20 group">
                             <img src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105" alt="Indonesian manufacturing">
                             <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-obsidian opacity-80"></div>
                             <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full p-6 opacity-80">
@@ -490,22 +526,22 @@
                 </div>
 
                 <!-- Chapter 4: The Living Legacy -->
-                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center reveal z-10">
-                    <div class="md:col-span-5 md:col-start-8">
-                        <span class="text-brandLight font-mono text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT IV // THE LEGACY</span>
-                        <h3 class="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Generational Sanctuaries</h3>
+                <div class="relative grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center reveal z-10 pl-16 md:pl-0">
+                    <div class="md:col-span-5 md:col-start-8 order-1 md:order-2">
+                        <span class="text-brandLight font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">ACT IV // THE LEGACY</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-4 uppercase tracking-tighter">Generational Sanctuaries</h3>
                         <p class="text-steel text-sm md:text-base font-light leading-relaxed max-w-md">
                             Today, GreenShift deploys these masterworks across the globe. What begins as a Swedish technical schematic and an Indonesian precision module becomes a living sanctuary. Our structures breathe with their environments, halve construction timelines, and leave the pristine earth completely undisturbed.
                         </p>
                     </div>
                     
                     <!-- Centre Point node -->
-                    <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandLight flex items-center justify-center shadow-[0_0_20px_rgba(83,211,165,0.7)]">
+                    <div class="absolute left-0 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-charcoal border-4 border-brandLight flex items-center justify-center shadow-[0_0_20px_rgba(83,211,165,0.7)]">
                         <span class="w-2.5 h-2.5 rounded-full bg-brandLight"></span>
                     </div>
                     
-                    <div class="md:col-span-5 md:col-start-1 md:text-right flex flex-col md:items-end md:row-start-1">
-                        <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-[2rem] overflow-hidden border border-brandLight/20 group">
+                    <div class="md:col-span-5 md:col-start-1 md:text-right flex flex-col items-start md:items-end md:row-start-1 order-2 md:order-1">
+                        <div class="relative aspect-square w-full max-w-[280px] md:max-w-[320px] rounded-[2rem] overflow-hidden border border-brandLight/20 group">
                             <img src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105" alt="Generational sanctuary">
                             <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-obsidian opacity-80"></div>
                             <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full p-8 opacity-80">
@@ -523,13 +559,17 @@
     </section>
 
     <!-- Section 3: The Holding Ecosystem -->
-    <section id="paradigm" class="py-32 relative bg-[#060807] border-t border-white/5">
+    <section id="paradigm" class="py-24 md:py-32 relative bg-[#060807] border-t border-white/5">
+        
+        <!-- Expanded Depth Background Glow -->
+        <div class="ambient-glow-dark w-[800px] h-[800px] bottom-[-100px] left-[-300px] pointer-events-none"></div>
+
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12">
             
-            <div class="max-w-3xl mb-24 reveal">
+            <div class="max-w-3xl mb-16 md:mb-24 reveal">
                 <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">The Hierarchy</p>
-                <h2 class="text-4xl md:text-6xl font-black tracking-tighter mb-6 leading-[1.1]">The Ecosystem of<br><span class="text-steel">Absolute Efficiency.</span></h2>
-                <p class="text-steel text-lg font-light leading-relaxed">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-6 leading-[1.1]">The Ecosystem of<br><span class="text-steel">Absolute Efficiency.</span></h2>
+                <p class="text-steel text-base md:text-lg font-light leading-relaxed">
                     Fjäll Group is the overarching intelligence—managing governance, capital allocation, and strategic control. Beneath it, two specialised pillars operate with absolute friction-less synergy.
                 </p>
             </div>
@@ -537,54 +577,54 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
                 <!-- Fjall Group Governance -->
-                <div class="lg:col-span-12 glass-card p-10 md:p-14 rounded-3xl reveal border border-white/10 bg-gradient-to-r from-obsidian to-charcoal">
+                <div class="lg:col-span-12 glass-card p-8 md:p-14 rounded-3xl reveal border border-white/10 bg-gradient-to-r from-obsidian to-charcoal">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                         <div>
                             <span class="text-white text-[10px] font-bold tracking-[0.2em] uppercase mb-4 block">The Anchor</span>
                             <h3 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">Fjäll Group Holding</h3>
-                            <p class="text-steel font-light text-base leading-relaxed max-w-2xl">
+                            <p class="text-steel font-light text-sm md:text-base leading-relaxed max-w-2xl">
                                 The institutional anchor of our ecosystem. Fjäll Group provides the visionary governance, capital frameworks, and Tier-1 financial security required to deliver generational infrastructure. We guarantee that every partnership is backed by absolute stability, robust intellectual property protection, and an unwavering commitment to seamless execution.
                             </p>
                         </div>
-                        <div class="hidden md:block w-24 h-24 rounded-full border border-white/10 flex items-center justify-center shrink-0">
+                        <div class="hidden md:flex w-24 h-24 rounded-full border border-white/10 items-center justify-center shrink-0">
                             <i data-lucide="shield" class="w-10 h-10 text-white/50"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- FGT -->
-                <div class="lg:col-span-6 glass-card p-10 md:p-16 rounded-3xl reveal group cursor-default">
+                <div class="lg:col-span-6 glass-card p-8 md:p-16 rounded-3xl reveal group cursor-default">
                     <div class="flex justify-between items-start mb-10">
-                        <div class="w-14 h-14 rounded-full bg-brandLight/10 flex items-center justify-center border border-brandLight/20 group-hover:bg-brandLight transition-colors">
-                            <i data-lucide="settings" class="w-6 h-6 text-brandLight group-hover:text-obsidian transition-colors"></i>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-brandLight/10 flex items-center justify-center border border-brandLight/20 group-hover:bg-brandLight transition-colors">
+                            <i data-lucide="settings" class="w-5 h-5 md:w-6 md:h-6 text-brandLight group-hover:text-obsidian transition-colors"></i>
                         </div>
                         <span class="text-brandLight text-[10px] font-bold tracking-[0.2em] uppercase">The Tech Core</span>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-black mb-4 tracking-tight">Fjäll Green Tech</h3>
-                    <p class="text-steel font-light text-base leading-relaxed mb-10">
-                        Advancing Swedish systems design from our Fukuoka R&D hub, and manufactured at scale natively in Indonesia, FGT handles Production, Procurement, and Systems. Our proprietary EPS (Expanded Polystyrene) panels create unparalleled thermal envelopes, mass-produced off-site to guarantee zero waste and rapid deployment.
+                    <h3 class="text-2xl md:text-4xl font-black mb-4 tracking-tight">Fjäll Green Tech</h3>
+                    <p class="text-steel font-light text-sm md:text-base leading-relaxed mb-10">
+                        Advancing Swedish systems design and manufactured at scale natively in Indonesia, FGT handles Production, Procurement, and Systems. Our proprietary EPS (Expanded Polystyrene) panels create unparalleled thermal envelopes, mass-produced off-site to guarantee zero waste and rapid deployment.
                     </p>
-                    <div class="flex flex-wrap gap-3">
-                        <span class="px-4 py-2 rounded-full border border-white/10 text-xs font-medium text-white/70">EPS Manufacturing</span>
-                        <span class="px-4 py-2 rounded-full border border-white/10 text-xs font-medium text-white/70">Global Procurement</span>
+                    <div class="flex flex-wrap gap-2 md:gap-3">
+                        <span class="px-3 md:px-4 py-2 rounded-full border border-white/10 text-[10px] md:text-xs font-medium text-white/70">EPS Manufacturing</span>
+                        <span class="px-3 md:px-4 py-2 rounded-full border border-white/10 text-[10px] md:text-xs font-medium text-white/70">Global Procurement</span>
                     </div>
                 </div>
 
                 <!-- GreenShift -->
-                <div class="lg:col-span-6 glass-card p-10 md:p-16 rounded-3xl reveal group cursor-default" style="transition-delay: 150ms;">
+                <div class="lg:col-span-6 glass-card p-8 md:p-16 rounded-3xl reveal group cursor-default" style="transition-delay: 150ms;">
                     <div class="flex justify-between items-start mb-10">
-                        <div class="w-14 h-14 rounded-full bg-brandDark/20 flex items-center justify-center border border-brandDark/30 group-hover:bg-brandDark transition-colors">
-                            <i data-lucide="map" class="w-6 h-6 text-brandMid group-hover:text-white transition-colors"></i>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-brandDark/20 flex items-center justify-center border border-brandDark/30 group-hover:bg-brandDark transition-colors">
+                            <i data-lucide="map" class="w-5 h-5 md:w-6 md:h-6 text-brandMid group-hover:text-white transition-colors"></i>
                         </div>
-                        <span class="text-brandDark text-[10px] font-bold tracking-[0.2em] uppercase">The Commercial Vanguard</span>
+                        <span class="text-brandDark text-[10px] font-bold tracking-[0.2em] uppercase">The Strategic Executor</span>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-black mb-4 tracking-tight">GreenShift</h3>
-                    <p class="text-steel font-light text-base leading-relaxed mb-10">
+                    <h3 class="text-2xl md:text-4xl font-black mb-4 tracking-tight">GreenShift</h3>
+                    <p class="text-steel font-light text-sm md:text-base leading-relaxed mb-10">
                         GreenShift executes commercial vision. Handling Land Acquisition, Project Development, Sales, and Client relations. GS sources the world's finest locations and integrates FGT technology to deliver high-yield architectural masterpieces.
                     </p>
-                    <div class="flex flex-wrap gap-3">
-                        <span class="px-4 py-2 rounded-full border border-white/10 text-xs font-medium text-white/70">Project Development</span>
-                        <span class="px-4 py-2 rounded-full border border-white/10 text-xs font-medium text-white/70">Client Acquisition</span>
+                    <div class="flex flex-wrap gap-2 md:gap-3">
+                        <span class="px-3 md:px-4 py-2 rounded-full border border-white/10 text-[10px] md:text-xs font-medium text-white/70">Project Development</span>
+                        <span class="px-3 md:px-4 py-2 rounded-full border border-white/10 text-[10px] md:text-xs font-medium text-white/70">Client Acquisition</span>
                     </div>
                 </div>
             </div>
@@ -593,26 +633,30 @@
     </section>
 
     <!-- Section 4: The Three Hubs -->
-    <section id="epicentre" class="py-32 relative bg-charcoal overflow-hidden border-t border-white/5">
+    <section id="epicentre" class="py-24 md:py-32 relative bg-charcoal overflow-hidden border-t border-white/5">
+        
+        <!-- Expanded Depth Background Glow -->
+        <div class="ambient-glow w-[500px] h-[500px] top-[-50px] right-[-100px] pointer-events-none"></div>
+
         <div class="max-w-screen-2xl mx-auto px-6 md:px-12 relative z-10">
             
-            <div class="mb-20 reveal text-center">
+            <div class="mb-16 md:mb-20 reveal text-center">
                 <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">Strategic Triangulation</p>
-                <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-6">The Global Hubs.</h2>
-                <p class="text-steel text-lg font-light max-w-2xl mx-auto">Three highly specialised sovereign nodes. One unified command structure.</p>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6">The Global Hubs.</h2>
+                <p class="text-steel text-base md:text-lg font-light max-w-2xl mx-auto">Three highly specialised sovereign nodes. One unified command structure.</p>
             </div>
 
             <!-- HQ: Indonesia -->
             <div class="glass-card rounded-[2.5rem] overflow-hidden mb-8 reveal relative group">
                 <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2638&auto=format&fit=crop')] bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-700"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-obsidian via-obsidian/80 to-transparent"></div>
-                <div class="relative z-10 p-12 md:p-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
+                <div class="relative z-10 p-8 md:p-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-12">
                     <div class="max-w-xl">
-                        <div class="inline-block px-4 py-1.5 rounded-full bg-brandLight text-obsidian text-[10px] font-black tracking-widest uppercase mb-6">Global Headquarters</div>
-                        <h3 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter">Indonesia</h3>
-                        <p class="text-steel text-lg font-light leading-relaxed">The central intelligence and manufacturing powerhouse of Fjäll Group. Indonesia acts as the command centre for global strategy, holding governance, and houses FGT's high-capacity EPS production lines—powering our rapid deployment globally.</p>
+                        <div class="inline-block px-3 md:px-4 py-1.5 rounded-full bg-brandLight text-obsidian text-[10px] font-black tracking-widest uppercase mb-6">Global Headquarters</div>
+                        <h3 class="text-4xl md:text-7xl font-black text-white mb-4 md:mb-6 tracking-tighter">Indonesia</h3>
+                        <p class="text-steel text-sm md:text-lg font-light leading-relaxed">The central intelligence and manufacturing powerhouse of Fjäll Group. Indonesia acts as the command centre for global strategy, holding governance, and houses FGT's high-capacity EPS production lines—powering our rapid deployment globally.</p>
                     </div>
-                    <div class="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center text-white/50">
+                    <div class="hidden md:flex w-16 h-16 rounded-full border border-white/20 items-center justify-center text-white/50 shrink-0">
                         <i data-lucide="anchor" class="w-6 h-6"></i>
                     </div>
                 </div>
@@ -624,10 +668,10 @@
                 <div class="glass-card rounded-[2.5rem] overflow-hidden relative group">
                     <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/80 to-transparent"></div>
-                    <div class="relative z-10 p-10 md:p-14 h-full flex flex-col justify-end min-h-[400px]">
+                    <div class="relative z-10 p-8 md:p-14 h-full flex flex-col justify-end min-h-[350px] md:min-h-[400px]">
                         <p class="text-brandLight text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Strategic Capital Hub</p>
-                        <h3 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">Western Australia</h3>
-                        <p class="text-steel font-light text-base leading-relaxed">The frontier of scale. Dedicated to mass infrastructural deployment and securing high-value, resource-rich land assets for institutional-grade development.</p>
+                        <h3 class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter">Western Australia</h3>
+                        <p class="text-steel font-light text-sm md:text-base leading-relaxed">The frontier of scale. Dedicated to mass infrastructural deployment and securing high-value, resource-rich land assets for institutional-grade development.</p>
                     </div>
                 </div>
 
@@ -635,10 +679,10 @@
                 <div class="glass-card rounded-[2.5rem] overflow-hidden relative group">
                     <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2694&auto=format&fit=crop')] bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/80 to-transparent"></div>
-                    <div class="relative z-10 p-10 md:p-14 h-full flex flex-col justify-end min-h-[400px]">
+                    <div class="relative z-10 p-8 md:p-14 h-full flex flex-col justify-end min-h-[350px] md:min-h-[400px]">
                         <p class="text-brandLight text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Precision R&D Hub</p>
-                        <h3 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">Fukuoka, Japan</h3>
-                        <p class="text-steel font-light text-base leading-relaxed">The technological vanguard. Where Fjäll Green Tech advances the structural blueprint of every EPS module. Dedicated exclusively to refining Swedish systems design, clean passive architectural R&D, and global structural standardisation.</p>
+                        <h3 class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter">Fukuoka, Japan</h3>
+                        <p class="text-steel font-light text-sm md:text-base leading-relaxed">The technological vanguard. Where Fjäll Green Tech engineers the structural blueprint of every EPS module. Dedicated exclusively to advanced systems design, clean passive architectural R&D, and structural standardisation.</p>
                     </div>
                 </div>
 
@@ -646,79 +690,79 @@
         </div>
     </section>
 
-    <!-- Section 5: Physical Manifestation (Rebuilt & Extended) -->
-    <section id="portfolio" class="py-32 bg-obsidian overflow-hidden border-t border-white/5 relative z-10">
-        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 reveal">
-            <div>
-                <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-4">Physical Manifestation.</h2>
-                <p class="text-steel text-lg font-light max-w-lg">The intersection of theoretical precision and geographical reality. Explore our deployed assets.</p>
-            </div>
-            <div class="flex gap-4">
-                <button id="scroll-left" class="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-brandLight hover:text-obsidian hover:border-brandLight transition-all">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                </button>
-                <button id="scroll-right" class="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-brandLight hover:text-obsidian hover:border-brandLight transition-all">
-                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
+    <!-- Section 5: Physical Manifestation (Completely Rebuilt Deployment Ledger) -->
+    <section id="portfolio" class="py-24 md:py-32 bg-obsidian overflow-hidden border-t border-white/5 relative z-10">
+        
+        <!-- Expanded Depth Background Glow -->
+        <div class="ambient-glow-dark w-[1000px] h-[1000px] bottom-[0] left-[-300px] pointer-events-none"></div>
 
-        <div id="project-container" class="flex overflow-x-auto gap-8 px-6 md:px-12 pb-12 no-scrollbar reveal" style="transition-delay: 150ms;">
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-12">
             
-            <!-- Asset 1 -->
-            <div class="min-w-[85vw] md:min-w-[700px] group shrink-0" onclick="openAssetModal('indo')">
-                <div class="h-[500px] md:h-[650px] rounded-[2.5rem] relative overflow-hidden bg-obsidian cursor-pointer border border-transparent hover:border-brandLight/30 transition-all duration-500">
-                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2675&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Villa">
-                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
-                        <div class="px-6 py-3 rounded-full bg-obsidian/80 backdrop-blur-md text-brandLight text-xs font-bold tracking-widest uppercase border border-brandLight/50 flex items-center gap-2">
-                            <i data-lucide="scan-line" class="w-4 h-4"></i> View Intelligence
-                        </div>
-                    </div>
-                    <div class="absolute bottom-12 left-10 right-10 flex justify-between items-end z-0">
-                        <div>
-                            <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-white/20">GreenShift Development</span>
-                            <h3 class="text-3xl md:text-5xl font-black tracking-tighter text-white">Indonesian Archipelago Range</h3>
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-16 md:mb-24 reveal">
+                <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">The Deployment Ledger</p>
+                <h2 class="text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter mb-6 uppercase">Physical Manifestation.</h2>
+                <p class="text-steel text-base md:text-lg font-light max-w-2xl leading-relaxed">
+                    Proof of execution. Explore our active, institutionally scaled assets where Swedish structural precision meets Indonesian manufacturing power to redefine global real estate.
+                </p>
             </div>
 
-            <!-- Asset 2 -->
-            <div class="min-w-[85vw] md:min-w-[700px] group shrink-0" onclick="openAssetModal('fukuoka')">
-                <div class="h-[500px] md:h-[650px] rounded-[2.5rem] relative overflow-hidden bg-obsidian cursor-pointer border border-transparent hover:border-brandLight/30 transition-all duration-500">
-                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Tech">
-                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
-                        <div class="px-6 py-3 rounded-full bg-obsidian/80 backdrop-blur-md text-brandLight text-xs font-bold tracking-widest uppercase border border-brandLight/50 flex items-center gap-2">
-                            <i data-lucide="scan-line" class="w-4 h-4"></i> View Intelligence
-                        </div>
-                    </div>
-                    <div class="absolute bottom-12 left-10 right-10 flex justify-between items-end z-0">
+            <!-- New Interactive Ledger Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 reveal" style="transition-delay: 150ms;">
+                
+                <!-- Featured Asset Display (Left/Top) -->
+                <div class="lg:col-span-7 relative h-[500px] lg:h-[700px] rounded-[2rem] overflow-hidden group border border-white/10" id="featured-asset-display">
+                    <img id="featured-img" src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-all duration-1000 scale-100 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Featured Asset">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-transparent"></div>
+                    
+                    <!-- HUD Scanline Overlay -->
+                    <div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(83,211,165,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
+                    
+                    <div class="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12 md:right-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 z-20">
                         <div>
-                            <span class="inline-block px-4 py-1.5 rounded-full bg-brandLight/20 backdrop-blur-md text-brandLight text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-brandLight/30">FGT Engineering</span>
-                            <h3 class="text-3xl md:text-5xl font-black tracking-tighter text-white">Fukuoka Systems Design Hub</h3>
+                            <span id="featured-tag" class="inline-block px-4 py-1.5 rounded-full bg-brandLight/20 backdrop-blur-md text-brandLight text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-brandLight/30">GreenShift Eco-Resort</span>
+                            <h3 id="featured-title" class="text-3xl md:text-5xl font-black tracking-tighter text-white">Indonesian Archipelago Range</h3>
                         </div>
+                        <button onclick="openCurrentAssetModal()" class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-brandLight/10 border border-brandLight flex items-center justify-center text-brandLight hover:bg-brandLight hover:text-obsidian transition-all duration-300 shrink-0 group/btn shadow-[0_0_20px_rgba(83,211,165,0.3)] relative overflow-hidden">
+                            <i data-lucide="scan-line" class="w-6 h-6 group-hover/btn:scale-110 transition-transform relative z-10"></i>
+                            <div class="absolute inset-0 bg-brandLight opacity-0 group-hover/btn:opacity-100 transition-opacity z-0"></div>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Asset 3 -->
-            <div class="min-w-[85vw] md:min-w-[700px] group shrink-0" onclick="openAssetModal('wa')">
-                <div class="h-[500px] md:h-[650px] rounded-[2.5rem] relative overflow-hidden bg-obsidian cursor-pointer border border-transparent hover:border-brandLight/30 transition-all duration-500">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Land">
-                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
-                        <div class="px-6 py-3 rounded-full bg-obsidian/80 backdrop-blur-md text-brandLight text-xs font-bold tracking-widest uppercase border border-brandLight/50 flex items-center gap-2">
-                            <i data-lucide="scan-line" class="w-4 h-4"></i> View Intelligence
+                <!-- Interactive Asset Registry (Right/Bottom) -->
+                <div class="lg:col-span-5 flex flex-col justify-center space-y-4 md:space-y-6 relative z-20">
+                    
+                    <!-- Ledger Item 1 -->
+                    <div class="ledger-item cursor-pointer p-6 md:p-8 rounded-2xl border transition-all duration-500 bg-white/5 border-brandLight/50 shadow-[0_0_20px_rgba(83,211,165,0.1)]" onclick="switchPortfolio('indo-resort', this)">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-brandLight font-mono text-xs md:text-sm font-bold tracking-widest">01 // GS DEPLOYMENT</span>
+                            <div class="w-2 h-2 rounded-full bg-brandLight animate-pulse"></div>
                         </div>
+                        <h4 class="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase mb-2">Indonesian Archipelago</h4>
+                        <p class="text-steel text-sm font-light leading-relaxed">Tier-1 luxury hospitality deployment establishing sustainable dominance across sensitive tropical ecosystems.</p>
                     </div>
-                    <div class="absolute bottom-12 left-10 right-10 flex justify-between items-end z-0">
-                        <div>
-                            <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-white/20">Strategic Asset</span>
-                            <h3 class="text-3xl md:text-5xl font-black tracking-tighter text-white">Western Australia Sector</h3>
+
+                    <!-- Ledger Item 2 -->
+                    <div class="ledger-item cursor-pointer p-6 md:p-8 rounded-2xl border transition-all duration-500 bg-transparent border-white/10 hover:bg-white/5 hover:border-white/20" onclick="switchPortfolio('indo-forge', this)">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-white/40 font-mono text-xs md:text-sm font-bold tracking-widest">02 // FGT MANUFACTURING</span>
+                            <div class="w-2 h-2 rounded-full bg-white/20"></div>
                         </div>
+                        <h4 class="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase mb-2">Jakarta High-Capacity Forge</h4>
+                        <p class="text-steel text-sm font-light leading-relaxed">The industrial heart of Fjäll. Mass-producing Swedish-designed EPS core modules natively in Indonesia.</p>
                     </div>
+
+                    <!-- Ledger Item 3 -->
+                    <div class="ledger-item cursor-pointer p-6 md:p-8 rounded-2xl border transition-all duration-500 bg-transparent border-white/10 hover:bg-white/5 hover:border-white/20" onclick="switchPortfolio('wa-sector', this)">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-white/40 font-mono text-xs md:text-sm font-bold tracking-widest">03 // STRATEGIC ASSET</span>
+                            <div class="w-2 h-2 rounded-full bg-white/20"></div>
+                        </div>
+                        <h4 class="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase mb-2">Western Australia Sector</h4>
+                        <p class="text-steel text-sm font-light leading-relaxed">Vast master-planned residential deployment designed to conquer extreme arid climates with unparalleled energy efficiency.</p>
+                    </div>
+
                 </div>
             </div>
 
@@ -728,92 +772,103 @@
     <!-- ASSET INTELLIGENCE MODAL -->
     <div class="asset-modal-overlay" id="asset-modal">
         <div class="asset-modal-content">
-            <button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/70 hover:bg-white hover:text-obsidian hover:border-white transition-all z-20" onclick="closeAssetModal()">
+            <button class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/70 hover:bg-white hover:text-obsidian hover:border-white transition-all z-20" onclick="closeAssetModal()">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
             
-            <!-- Dynamic Image Side -->
-            <div class="asset-image-col">
+            <!-- Dynamic Image Side with HUD overlay -->
+            <div class="asset-image-col group">
                 <img id="modal-img" src="" class="w-full h-full object-cover" alt="Asset">
-                <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-transparent"></div>
-                <div class="absolute bottom-6 left-6">
-                    <span id="modal-tag" class="px-3 py-1 rounded-full bg-brandLight/20 text-brandLight text-[10px] font-bold tracking-widest uppercase border border-brandLight/30 backdrop-blur-md"></span>
+                <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-transparent z-0"></div>
+                <!-- HUD Scanline Overlay -->
+                <div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(83,211,165,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
+                <div class="absolute top-0 left-0 w-full h-[2px] bg-brandLight/50 shadow-[0_0_10px_rgba(83,211,165,0.8)] animate-[scan_3s_ease-in-out_infinite] z-20"></div>
+
+                <div class="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-30">
+                    <span id="modal-tag" class="px-3 py-1 rounded-full bg-brandLight/20 text-brandLight text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-brandLight/30 backdrop-blur-md"></span>
                 </div>
             </div>
 
             <!-- Dynamic Content Side -->
             <div class="asset-data-col flex flex-col justify-between">
                 <div>
-                    <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-2">Asset Intelligence Report</p>
-                    <h3 id="modal-title" class="text-3xl md:text-4xl font-black text-white tracking-tighter mb-6"></h3>
-                    <p id="modal-desc" class="text-steel font-light text-sm md:text-base leading-relaxed mb-8 border-b border-white/10 pb-8"></p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="crosshair" class="w-3 h-3 text-brandLight"></i>
+                        <p class="text-brandLight text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase">Asset Intelligence Report</p>
+                    </div>
+                    <h3 id="modal-title" class="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tighter mb-4 md:mb-6"></h3>
+                    <p id="modal-desc" class="text-steel font-light text-xs md:text-sm lg:text-base leading-relaxed mb-6 md:mb-8 border-b border-white/10 pb-6 md:pb-8"></p>
                     
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Deployment Time</p>
-                            <p id="modal-time" class="text-white font-mono text-xl"></p>
+                    <div class="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <p id="modal-m1-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
+                            <p id="modal-m1-value" class="text-white font-mono text-sm md:text-base truncate"></p>
                         </div>
-                        <div>
-                            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">EPS Volume Utilised</p>
-                            <p id="modal-eps" class="text-white font-mono text-xl"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <p id="modal-m2-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
+                            <p id="modal-m2-value" class="text-white font-mono text-sm md:text-base truncate"></p>
                         </div>
-                        <div>
-                            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Carbon Offset</p>
-                            <p id="modal-carbon" class="text-brandLight font-mono text-xl"></p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <p id="modal-m3-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
+                            <p id="modal-m3-value" class="text-brandLight font-mono text-sm md:text-base truncate"></p>
                         </div>
-                        <div>
-                            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Status</p>
-                            <p class="text-white font-mono text-xl flex items-center gap-2"><span class="w-2 h-2 bg-brandLight rounded-full animate-pulse"></span> Active</p>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <p id="modal-m4-label" class="text-white/40 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1"></p>
+                            <p id="modal-m4-value" class="text-brandLight font-mono text-sm md:text-base flex items-center gap-2 truncate"></p>
                         </div>
                     </div>
                 </div>
 
-                <button onclick="routeToForm()" class="w-full py-4 rounded-xl bg-white text-obsidian font-bold uppercase tracking-widest text-xs hover:bg-brandLight transition-colors flex justify-center items-center gap-2">
-                    Procure Similar Asset <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <button onclick="routeToForm()" class="w-full py-3 md:py-4 rounded-xl bg-white text-obsidian font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-brandLight transition-colors flex justify-center items-center gap-2 mt-4 md:mt-0 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(83,211,165,0.3)]">
+                    Initiate Procurement <i data-lucide="arrow-right" class="w-3 h-3 md:w-4 md:h-4"></i>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Section 6: Initiate (Conversion Form) -->
-    <section id="initiate" class="py-32 md:py-48 relative bg-obsidian border-t border-white/5">
-        <div class="max-w-screen-lg mx-auto px-6 md:px-12">
+    <section id="initiate" class="py-24 md:py-48 relative bg-obsidian border-t border-white/5">
+        
+        <!-- Expanded Depth Background Glow -->
+        <div class="ambient-glow w-[700px] h-[700px] top-[0] right-[-200px] pointer-events-none"></div>
+
+        <div class="max-w-screen-lg mx-auto px-6 md:px-12 relative z-10">
             
-            <div class="text-center mb-20 reveal">
+            <div class="text-center mb-12 md:mb-20 reveal">
                 <p class="text-brandLight text-xs font-bold tracking-[0.2em] uppercase mb-4">Command Input</p>
-                <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-6">Initiate Partnership.</h2>
-                <p class="text-steel text-lg font-light max-w-xl mx-auto">Select a strategic vector. Your inquiry will be routed directly to the appropriate regional hub intelligence.</p>
+                <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-4 md:mb-6">Initiate Partnership.</h2>
+                <p class="text-steel text-base md:text-lg font-light max-w-xl mx-auto">Select a strategic vector. Your inquiry will be routed directly to the appropriate regional hub intelligence.</p>
             </div>
 
-            <div class="glass-card rounded-[2.5rem] p-8 md:p-16 reveal" style="transition-delay: 150ms;">
+            <div class="glass-card rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-16 reveal" style="transition-delay: 150ms;">
                 
                 <!-- Category Tabs -->
-                <div class="flex flex-col md:flex-row gap-4 mb-12 border-b border-white/10 pb-12">
-                    <button onclick="selectLeadType('land', this)" class="lead-btn flex-1 py-4 px-6 rounded-2xl text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
+                <div class="flex flex-col md:flex-row gap-3 md:gap-4 mb-8 md:mb-12 border-b border-white/10 pb-8 md:pb-12">
+                    <button onclick="selectLeadType('land', this)" class="lead-btn flex-1 py-3 md:py-4 px-4 md:px-6 rounded-xl md:rounded-2xl text-[10px] md:text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
                         01. Supply Land (GS)
                     </button>
-                    <button onclick="selectLeadType('tech', this)" class="lead-btn flex-1 py-4 px-6 rounded-2xl text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
+                    <button onclick="selectLeadType('tech', this)" class="lead-btn flex-1 py-3 md:py-4 px-4 md:px-6 rounded-xl md:rounded-2xl text-[10px] md:text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
                         02. Procure Tech (FGT)
                     </button>
-                    <button onclick="selectLeadType('invest', this)" class="lead-btn flex-1 py-4 px-6 rounded-2xl text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
+                    <button onclick="selectLeadType('invest', this)" class="lead-btn flex-1 py-3 md:py-4 px-4 md:px-6 rounded-xl md:rounded-2xl text-[10px] md:text-sm font-bold tracking-widest uppercase border border-white/20 text-white hover:bg-white/5 transition-all text-center">
                         03. Capital Link
                     </button>
                 </div>
 
-                <form id="lead-form" class="space-y-10">
+                <form id="lead-form" class="space-y-6 md:space-y-10">
                     <input type="hidden" id="selected-type" value="">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <input type="text" placeholder="Entity / Designation" class="form-input text-lg font-light placeholder:text-steel/40 placeholder:tracking-wide">
-                        <input type="email" placeholder="Secure Email" class="form-input text-lg font-light placeholder:text-steel/40 placeholder:tracking-wide">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                        <input type="text" placeholder="Entity / Designation" class="form-input text-base md:text-lg font-light placeholder:text-steel/40 placeholder:tracking-wide">
+                        <input type="email" placeholder="Secure Email" class="form-input text-base md:text-lg font-light placeholder:text-steel/40 placeholder:tracking-wide">
                     </div>
                     
-                    <input type="text" id="dynamic-placeholder" placeholder="Awaiting Vector Selection..." class="form-input text-lg font-light placeholder:text-brandLight/50 text-brandLight" readonly>
+                    <input type="text" id="dynamic-placeholder" placeholder="Awaiting Vector Selection..." class="form-input text-base md:text-lg font-light placeholder:text-brandLight/50 text-brandLight" readonly>
 
-                    <div class="pt-10">
-                        <button id="submit-btn" type="button" class="w-full rounded-2xl bg-white text-obsidian font-black text-xl tracking-widest uppercase py-6 hover:bg-brandLight transition-all duration-300 opacity-30 cursor-not-allowed flex justify-center items-center gap-4">
-                            <span>Transmit Protocol</span>
-                            <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                    <div class="pt-6 md:pt-10">
+                        <button id="submit-btn" type="button" class="w-full rounded-xl md:rounded-2xl bg-white text-obsidian font-black text-sm md:text-xl tracking-widest uppercase py-4 md:py-6 hover:bg-brandLight transition-all duration-300 opacity-30 cursor-not-allowed flex justify-center items-center gap-3 md:gap-4 relative overflow-hidden group">
+                            <span class="relative z-10">Transmit Protocol</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 md:w-6 md:h-6 relative z-10"></i>
                         </button>
                     </div>
                 </form>
@@ -823,35 +878,35 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-charcoal pt-24 pb-12">
-        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row justify-between items-start gap-16 text-sm text-steel">
+    <footer class="border-t border-white/5 bg-charcoal pt-16 md:pt-24 pb-8 md:pb-12">
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row justify-between items-start gap-12 md:gap-16 text-sm text-steel">
             
             <div class="max-w-sm">
-                <svg viewBox="0 0 350 100" class="h-8 w-auto mb-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 350 100" class="h-6 md:h-8 w-auto mb-6 md:mb-8" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="50,15 90,35 50,55 10,35" fill="#53d3a5"/>
                     <polygon points="10,35 50,55 50,95 10,75" fill="#408b81"/>
                     <polygon points="90,35 90,75 50,95 50,55" fill="#36776c"/>
                     <text x="110" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="44" fill="#53d3a5" letter-spacing="-1">FJÄLL</text>
                     <text x="112" y="88" font-family="'Inter', sans-serif" font-weight="500" font-size="34" fill="#36776c" letter-spacing="4">GROUP</text>
                 </svg>
-                <p class="font-light leading-relaxed text-base tracking-tight">
+                <p class="font-light leading-relaxed text-sm md:text-base tracking-tight">
                     Governance. Technology. Execution.<br>The holding group re-architecting global infrastructure.
                 </p>
             </div>
             
-            <div class="flex flex-wrap gap-20 font-medium">
+            <div class="flex flex-col sm:flex-row flex-wrap gap-12 sm:gap-20 font-medium">
                 <div>
-                    <h4 class="text-white mb-6 text-[10px] font-black tracking-[0.2em] uppercase">VECTORS</h4>
-                    <ul class="space-y-4 font-light text-base">
+                    <h4 class="text-white mb-4 md:mb-6 text-[10px] font-black tracking-[0.2em] uppercase">VECTORS</h4>
+                    <ul class="space-y-3 md:space-y-4 font-light text-sm md:text-base">
                         <li><a href="#" class="hover:text-brandLight transition-colors">Fjäll Green Tech</a></li>
                         <li><a href="#" class="hover:text-brandLight transition-colors">GreenShift</a></li>
                         <li><a href="#" class="hover:text-brandLight transition-colors">Fjäll Group Holding</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white mb-6 text-[10px] font-black tracking-[0.2em] uppercase">THE HUBS</h4>
-                    <ul class="space-y-4 font-light text-base">
-                        <li>Indonesia <span class="text-brandLight text-xs ml-2 font-bold uppercase tracking-widest">HQ</span></li>
+                    <h4 class="text-white mb-4 md:mb-6 text-[10px] font-black tracking-[0.2em] uppercase">THE HUBS</h4>
+                    <ul class="space-y-3 md:space-y-4 font-light text-sm md:text-base">
+                        <li>Indonesia <span class="text-brandLight text-[10px] md:text-xs ml-2 font-bold uppercase tracking-widest">HQ</span></li>
                         <li>Western Australia</li>
                         <li>Fukuoka, JP</li>
                     </ul>
@@ -860,11 +915,11 @@
             
         </div>
         
-        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-widest uppercase opacity-50">
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 mt-12 md:mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[9px] md:text-[10px] font-bold tracking-widest uppercase opacity-50 gap-4 md:gap-0">
             <p>&copy; 2026 Fjäll Group. All Rights Reserved.</p>
-            <div class="flex gap-8 mt-4 md:mt-0">
-                <a href="#story" class="hover:text-white uppercase tracking-widest transition-colors">Our Story</a>
-                <a href="#" class="hover:text-white">Privacy Policy</a>
+            <div class="flex flex-wrap justify-center gap-6 md:gap-8">
+                <a href="#story" class="hover:text-white transition-colors">Our Story</a>
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
             </div>
         </div>
     </footer>
@@ -874,7 +929,31 @@
         // 1. Initialize Icons
         lucide.createIcons();
 
-        // 2. Cinematic Build Story Loader Logic
+        // 2. Mobile Menu Toggle
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuBtnIcon = document.querySelector('#menu-btn i');
+        let menuOpen = false;
+
+        window.toggleMobileMenu = function() {
+            menuOpen = !menuOpen;
+            if (menuOpen) {
+                mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+                mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
+                document.body.style.overflow = 'hidden';
+                // Change icon to X using Lucide
+                menuBtnIcon.setAttribute('data-lucide', 'x');
+                lucide.createIcons();
+            } else {
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+                mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+                document.body.style.overflow = '';
+                // Change icon back to menu
+                menuBtnIcon.setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            }
+        };
+
+        // 3. Cinematic Build Story Loader Logic
         window.addEventListener('load', () => {
             const seqTrad = document.getElementById('seq-trad');
             const seqFjall = document.getElementById('seq-fjall');
@@ -921,7 +1000,7 @@
             }, 7300); 
         });
 
-        // 3. Lenis Smooth Scrolling Setup
+        // 4. Lenis Smooth Scrolling Setup
         const lenis = new Lenis({
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -930,8 +1009,55 @@
             smooth: true,
         });
 
+        // --- MOVING WALL PARALLAX SETUP ---
+        const bgGlows = document.querySelectorAll('.ambient-glow, .ambient-glow-dark');
+        const noiseBg = document.querySelector('.noise-overlay');
+        
+        let targetX = 0; let targetY = 0;
+        let currentX = 0; let currentY = 0;
+
+        // Mouse Tracking
+        window.addEventListener('mousemove', (e) => {
+            targetX = (e.clientX / window.innerWidth - 0.5) * 2; 
+            targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // Mobile Gyroscope Tracking (moves the wall as user physically moves phone)
+        window.addEventListener('deviceorientation', (e) => {
+            if (e.gamma !== null && e.beta !== null) {
+                // Gamma: left/right tilt (-90 to 90) -> clamp to roughly -45 to 45
+                let gamma = e.gamma;
+                // Beta: front/back tilt (-180 to 180) -> offset resting position
+                let beta = e.beta - 45; 
+                
+                targetX = Math.max(-1, Math.min(1, gamma / 30));
+                targetY = Math.max(-1, Math.min(1, beta / 30));
+            }
+        });
+
         function raf(time) {
             lenis.raf(time);
+            
+            // Fluid Lerp for moving wall
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
+
+            // Apply Parallax to glows
+            bgGlows.forEach((glow, i) => {
+                const moveX = (i % 2 === 0 ? 50 : -60);
+                const moveY = (i % 2 === 0 ? 60 : -50);
+                // Slight scroll parallax
+                const scrollParallax = window.scrollY * (i % 2 === 0 ? 0.08 : 0.12);
+                
+                const yPos = (currentY * moveY) + scrollParallax;
+                glow.style.transform = `translate3d(${currentX * moveX}px, ${yPos}px, 0)`;
+            });
+
+            // Apply subtle perspective shift to noise overlay
+            if(noiseBg) {
+                noiseBg.style.transform = `translate3d(${currentX * -15}px, ${currentY * -15}px, 0)`;
+            }
+
             requestAnimationFrame(raf);
         }
         requestAnimationFrame(raf);
@@ -948,7 +1074,7 @@
             });
         });
 
-        // 4. Scroll Reveal Intersection Observer
+        // 5. Scroll Reveal Intersection Observer
         const revealElements = document.querySelectorAll('.reveal');
         const revealOnScroll = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -960,7 +1086,7 @@
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealOnScroll.observe(el));
 
-        // 5. Conversational Form Logic
+        // 6. Conversational Form Logic
         const submitBtn = document.getElementById('submit-btn');
         const dynamicPlaceholder = document.getElementById('dynamic-placeholder');
         
@@ -993,69 +1119,151 @@
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if(window.scrollY > 50) {
-                navbar.classList.add('bg-obsidian/90', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
+                navbar.classList.add('bg-obsidian/95', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
                 navbar.classList.remove('py-6');
             } else {
-                navbar.classList.remove('bg-obsidian/90', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
+                navbar.classList.remove('bg-obsidian/95', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
                 navbar.classList.add('py-6');
             }
         });
 
-        // 6. --- ASSET INTELLIGENCE MODALS ---
+        // 7. --- ASSET INTELLIGENCE MODALS ---
         const assetData = {
-            'indo': {
-                title: 'Indonesian Archipelago Range',
-                tag: 'GreenShift Lead',
-                img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2675&auto=format&fit=crop',
-                desc: 'A luxury hospitality deployment utilising FGT’s modular EPS systems. Designed to withstand extreme tropical climates while maintaining zero structural waste during assembly. This project represents the pinnacle of GreenShift’s capability to turn pristine, remote land into high-yield, sustainable assets.',
-                time: '14 Weeks',
-                eps: '12,500 m³',
-                carbon: '-450 Tons'
+            'indo-resort': {
+                title: 'Indonesian Archipelago Resort',
+                tag: 'GreenShift Development',
+                img: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2600&auto=format&fit=crop',
+                desc: 'A Tier-1 luxury hospitality deployment situated in highly sensitive ecological zones. Utilising FGT’s modular EPS systems, we achieved zero structural waste and zero disruption to the surrounding coral and forest ecosystems. Designed for maximum yield and minimal footprint.',
+                metric1Label: 'Commercial Profile',
+                metric1Value: 'Tier-1 Hospitality',
+                metric2Label: 'Deployment Velocity',
+                metric2Value: '14 Weeks (-60%)',
+                metric3Label: 'Structural Core',
+                metric3Value: 'FGT EPS System',
+                metric4Label: 'Ecological Impact',
+                metric4Value: 'Net-Zero Waste'
             },
-            'fukuoka': {
-                title: 'Fukuoka Systems Design Hub',
-                tag: 'FGT Engineering',
-                img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop',
-                desc: 'The epicentre of our technical R&D. This facility was entirely constructed using our own proprietary EPS panels, serving as a live testing ground for thermal efficiency and structural resilience. It houses the engineering intelligence that dictates our global manufacturing outputs in Indonesia.',
-                time: '8 Weeks',
-                eps: '8,200 m³',
-                carbon: '-310 Tons'
+            'indo-forge': {
+                title: 'Jakarta High-Capacity Forge',
+                tag: 'FGT Industrial Base',
+                img: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2670&auto=format&fit=crop',
+                desc: 'The industrial beating heart of Fjäll Group. While our engineering blueprints originate in Sweden, all physical EPS manufacturing is executed here in Indonesia at massive institutional scale. This fully automated forge produces the structural core panels that supply our global GreenShift deployments.',
+                metric1Label: 'Asset Profile',
+                metric1Value: 'Automated Factory Line',
+                metric2Label: 'Production Velocity',
+                metric2Value: '1,200 Modules / Mth',
+                metric3Label: 'System Blueprint',
+                metric3Value: 'Swedish IP Standard',
+                metric4Label: 'Manufacturing Standard',
+                metric4Value: 'Zero-Emission Ops'
             },
-            'wa': {
+            'wa-sector': {
                 title: 'Western Australia Sector',
                 tag: 'Strategic Asset',
                 img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop',
-                desc: 'A massive infrastructural land play. We acquired premium coastal topography to deploy high-density, low-impact residential modules. The EPS core panels provide unparalleled thermal insulation against the harsh Australian sun, proving the versatility of the Fjäll deployment method.',
-                time: '22 Weeks',
-                eps: '45,000 m³',
-                carbon: '-1,800 Tons'
+                desc: 'A vast, master-planned residential deployment designed to conquer extreme arid climates. By leveraging our precision EPS envelopes, we established a high-density, off-grid capable community that drastically curtails lifetime energy consumption while preserving the raw Australian landscape.',
+                metric1Label: 'Asset Profile',
+                metric1Value: 'Master-Planned Sector',
+                metric2Label: 'Deployment Velocity',
+                metric2Value: '22 Weeks (-50%)',
+                metric3Label: 'Structural Core',
+                metric3Value: 'FGT Scaled Modules',
+                metric4Label: 'Energy Efficiency',
+                metric4Value: '85% Lifetime Reduction'
             }
         };
 
+        // Ledger Interaction Logic
+        let currentAssetId = 'indo-resort';
+        const featuredImg = document.getElementById('featured-img');
+        const featuredTag = document.getElementById('featured-tag');
+        const featuredTitle = document.getElementById('featured-title');
+
+        window.switchPortfolio = function(id, element) {
+            currentAssetId = id;
+            const data = assetData[id];
+
+            // Fade out image effect
+            featuredImg.style.opacity = '0.4';
+            
+            setTimeout(() => {
+                featuredImg.src = data.img;
+                featuredTag.innerText = data.tag;
+                featuredTitle.innerText = data.title;
+                featuredImg.style.opacity = '1';
+            }, 300);
+
+            // Update UI Ledger Styles
+            document.querySelectorAll('.ledger-item').forEach(item => {
+                // Reset to inactive state
+                item.classList.remove('bg-white/5', 'border-brandLight/50', 'shadow-[0_0_20px_rgba(83,211,165,0.1)]');
+                item.classList.add('bg-transparent', 'border-white/10');
+                
+                // Reset text colours
+                const span = item.querySelector('span');
+                span.classList.remove('text-brandLight');
+                span.classList.add('text-white/40');
+                
+                const dot = item.querySelector('div > div');
+                dot.classList.remove('bg-brandLight', 'animate-pulse');
+                dot.classList.add('bg-white/20');
+            });
+
+            // Set active state
+            element.classList.remove('bg-transparent', 'border-white/10');
+            element.classList.add('bg-white/5', 'border-brandLight/50', 'shadow-[0_0_20px_rgba(83,211,165,0.1)]');
+            
+            const activeSpan = element.querySelector('span');
+            activeSpan.classList.remove('text-white/40');
+            activeSpan.classList.add('text-brandLight');
+            
+            const activeDot = element.querySelector('div > div');
+            activeDot.classList.remove('bg-white/20');
+            activeDot.classList.add('bg-brandLight', 'animate-pulse');
+        }
+
+        // Modal Logic mapped to current active ledger item
         const assetModal = document.getElementById('asset-modal');
         const modalImg = document.getElementById('modal-img');
         const modalTag = document.getElementById('modal-tag');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
-        const modalTime = document.getElementById('modal-time');
-        const modalEps = document.getElementById('modal-eps');
-        const modalCarbon = document.getElementById('modal-carbon');
+        
+        const modalM1Label = document.getElementById('modal-m1-label');
+        const modalM1Value = document.getElementById('modal-m1-value');
+        const modalM2Label = document.getElementById('modal-m2-label');
+        const modalM2Value = document.getElementById('modal-m2-value');
+        const modalM3Label = document.getElementById('modal-m3-label');
+        const modalM3Value = document.getElementById('modal-m3-value');
+        const modalM4Label = document.getElementById('modal-m4-label');
+        const modalM4Value = document.getElementById('modal-m4-value');
 
-        window.openAssetModal = function(id) {
-            const data = assetData[id];
+        window.openCurrentAssetModal = function() {
+            const data = assetData[currentAssetId];
             modalImg.src = data.img;
             modalTag.innerText = data.tag;
             modalTitle.innerText = data.title;
             modalDesc.innerText = data.desc;
-            modalTime.innerText = data.time;
-            modalEps.innerText = data.eps;
-            modalCarbon.innerText = data.carbon;
+            
+            modalM1Label.innerText = data.metric1Label;
+            modalM1Value.innerText = data.metric1Value;
+            modalM2Label.innerText = data.metric2Label;
+            modalM2Value.innerText = data.metric2Value;
+            modalM3Label.innerText = data.metric3Label;
+            modalM3Value.innerText = data.metric3Value;
+            
+            // Rebuild m4 value to include the pulsing dot for visual effect
+            modalM4Label.innerText = data.metric4Label;
+            modalM4Value.innerHTML = `<span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-brandLight rounded-full animate-pulse shadow-[0_0_8px_rgba(83,211,165,1)] flex-shrink-0"></span> ${data.metric4Value}`;
 
             assetModal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
+            // Re-initialise icons for the newly injected content
+            lucide.createIcons();
+            
             // Set up route button
-            window.routeToFormType = id === 'indo' ? 'land' : 'tech';
+            window.routeToFormType = currentAssetId === 'indo-resort' ? 'land' : 'tech';
         }
 
         window.closeAssetModal = function() {
@@ -1076,17 +1284,8 @@
             if (e.target === this) closeAssetModal();
         });
 
-        // Portfolio Scroll Logic
-        const projectContainer = document.getElementById('project-container');
-        document.getElementById('scroll-left')?.addEventListener('click', () => {
-            projectContainer.scrollBy({ left: -window.innerWidth * 0.6, behavior: 'smooth' });
-        });
-        document.getElementById('scroll-right')?.addEventListener('click', () => {
-            projectContainer.scrollBy({ left: window.innerWidth * 0.6, behavior: 'smooth' });
-        });
 
-
-        // 7. --- EDUCATIONAL EPS SIMULATOR ---
+        // 8. --- EDUCATIONAL EPS SIMULATOR ---
         const simNextBtn = document.getElementById('sim-next-btn');
         const simTitle = document.getElementById('sim-title');
         const simDesc = document.getElementById('sim-desc');
